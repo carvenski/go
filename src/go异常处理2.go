@@ -6,7 +6,7 @@
 // C也是这样靠返回值来判断处理异常,相比于try-catch写法,这种做法到底好还是不好呢 ??
 //**********************************************************************************
 
-package main
+package test_db
 
 import (
 	"database/sql"
@@ -14,7 +14,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-func main() {
+func test_db() {
 	db, err := sql.Open("mysql", "user:password@/database")
 	if err != nil {
 		panic(err.Error())  // Just for example purpose. You should use proper error handling instead of panic
