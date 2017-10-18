@@ -1,8 +1,7 @@
-
-
 //**********************************************************************************
-// 有人说:go的代码有一半都是在写 if err != nil {} 依靠返回值来判断处理异常....
-// 这么麻烦的写法是go一个很大的缺点 ?? 
+// 有人说:go的代码有一半都是在写 if err != nil {},
+// 所以几乎每一句的函数调用后面都会跟个if err != nil {} ?? 依靠返回值来判断处理异常....
+// 这么麻烦的写法是go一个很大的缺点 ??
 // C也是这样靠返回值来判断处理异常,相比于try-catch写法,这种做法到底好还是不好呢 ??
 //**********************************************************************************
 
@@ -17,7 +16,7 @@ import (
 func test_db() {
 	db, err := sql.Open("mysql", "user:password@/database")
 	if err != nil {
-		panic(err.Error())  // Just for example purpose. You should use proper error handling instead of panic
+		panic(err.Error()) // Just for example purpose. You should use proper error handling instead of panic
 	}
 	defer db.Close()
 
@@ -59,4 +58,3 @@ func test_db() {
 	}
 	fmt.Printf("The square number of 1 is: %d", squareNum)
 }
-
