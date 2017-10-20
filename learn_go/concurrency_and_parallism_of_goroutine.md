@@ -1,5 +1,7 @@
 Concurrency, Goroutines and GOMAXPROCS
 
+## go可以通过设置runtime.GOMAXPROCS(processors_num)来使用cpu多核实现真的并行!!默认为1.
+
 Jan 29, 2014
 
 Introduction
