@@ -8,5 +8,6 @@ learn go
 [go评论](https://s.geekbang.org/search/c=0/k=/t=Go)
 [go socket实现聊天](https://victoriest.gitbooks.io/golang-tcp-server/content/chapter2.html)
 [国外牛人的go技术博客](https://www.goinggo.net/2014/01/concurrency-goroutines-and-gomaxprocs.html)
+[深入go](https://tiancaiamao.gitbooks.io/go-internals/content/zh/01.1.html)
 
 
