@@ -783,13 +783,136 @@ Similar is the case when maps are passed as parameters to functions. When any ch
 ```
 
 #### Strings
+```go
+//A string in Go is a slice of bytes. (like python String)
+//Since a string is a slice of bytes, its possible to access each byte of a string.
+
+func main() {  
+    name := "Hello World"
+    haha := name[0:5]
+    lett := name[-1]
+}
+
+// (string & byte & rune difference in go??)
 
 
+//iterate over the individual runes of a string. 
+s := "Señor"
+for index, rune := range s {
+    fmt.Printf("%c starts at byte %d\n", rune, index)
+}
 
+//Constructing string from slice of bytes.
+func main() {      
+    byteSlice := []byte{67, 97, 102, 195, 169}  //byteSlice := []byte{0x43, 0x61, 0x66, 0xC3, 0xA9}
+    s := string(byteSlice)
+    fmt.Println(s)
+}
+//Constructing a string from slice of runes.
+func main() {  
+    runeSlice := []rune{0x0053, 0x0065, 0x00f1, 0x006f, 0x0072}
+    s := string(runeSlice)
+    fmt.Println(s)
+}
+```
 
+#### Strings are immutable (just like python String)
+```go
+//Strings are immutable in Go. Once a string is created its not possible to change it.
+//you just change the variable which point to different string object.
 
+func main() {  
+    h := "hello"
+    h[0] = 'a'  // Error: string is immutable : cannot assign to h[0]
+}
 
+//there is a tricky way of string immutability: convert strings to a slice of runes. 
+//Then that slice is mutated with whatever changes needed and converted back to a new string.
+s := "hello"
+runes := []rune(s)
+runes[0] = 'a'      // OK, because runes is a slice not a string
+s = string(runes)   // s point to a new string now
+```
 
+#### Pointer in go
+*A pointer is a variable which stores the memory address of another variable.*
+*the reference type is using Pointer in essence*
+```go
+关于指针的3点基础知识:
+
+// 1.Declaring pointer:
+b := 255
+var a *int = &b        //在声明指针变量的时候, *是指示当前变量为指针类型 !!
+
+// 2.Using pointer:
+fmt.Println("address of b is", a)
+fmt.Println("address of b is", *a)     //而在使用指针变量的时候, *是取值操作符 !!
+
+// 3.&永远是取址操作符
+```
+
+```go
+The zero value of a pointer is nil.
+Lets write one more program where we change the value in b using the pointer.
+
+func main() {  
+    b := 255
+    a := &b
+    fmt.Println("address of b is", a)
+    fmt.Println("value of b is", *a)
+    *a++                               // it's equals to b++
+    fmt.Println("new value of b is", b)
+}
+```
+
+#### Passing pointer to a function
+```go
+func change(val *int) {               //声明 函数的参数是指针类型时,也使用 *T 声明
+    *val = 55
+}
+
+func main() {  
+    a := 58
+    fmt.Println("value of a before function call is",a)
+    b := &a
+    change(b)
+    fmt.Println("value of a after function call is", a)
+}
+```
+
+#### Do not pass a pointer to an array as a argument to a function. Use slice instead !!
+```go
+//Not Recommended: use "pointer" to an array as argument to function and make modification inside and outside:
+//  Although this way of passing a pointer to an array as a argument to a function and making modification to it works, 
+//  it is not the idiomatic way of achieving this in Go. We have slices for this.
+func modify(arr *[3]int) {  
+    (*arr)[0] = 100
+}
+func main() {  
+    a := [3]int{89, 90, 91}
+    modify(&a)
+    fmt.Println(a)     // a = [100, 90, 91]
+}
+
+//Recommended: use "slice" to an array as argument to function and make modification inside and outside:
+func modify(sls []int) {  
+    sls[0] = 90
+}
+func main() {  
+    a := [3]int{89, 90, 91}
+    modify(a[:])       // a[:] is a slice point to a array, actually it's already pointer in background.
+    fmt.Println(a)     // a = [100, 90, 91]
+}    
+```
+
+#### Go does not support pointer arithmetic like pointer in C.
+```go
+b := [...]int{109, 110, 111}
+p := &b
+p++     // Error: go pointer can't do arithmetic
+```
+
+#### Structure
 
 
 
