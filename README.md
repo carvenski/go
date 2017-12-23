@@ -912,36 +912,351 @@ p := &b
 p++     // Error: go pointer can't do arithmetic
 ```
 
-#### Structure
+#### Structure (A structure is a user defined type which represents a collection of fields)
+*in go, we use structure to realize Class & OOP staff*
+```go
+//Declaring and use a named structure:
+type Employee struct {  
+    firstName string
+    lastName  string
+    age       int
+}
+e1 := Employee{firstName: "Sam", lastName: "Anderson", age: 25,}
+e2 := Employee{"Thomas", "Paul", 29, 800}                          //args in order
 
+//Creating anonymous structures, no struct name:
+e3 := struct {
+    firstName, lastName string
+    age, salary         int
+}{
+    firstName: "Andreah",
+    lastName:  "Nikola",
+    age:       31,
+    salary:    5000,
+}
 
+//When a struct is defined and it is not explicitly initialised with any value, 
+//the fields of the struct are assigned their zero values by default.
+type Employee struct {  
+    firstName, lastName string
+    age, salary         int
+}
+var e4 Employee  // e4 = {  0 0}  
+```
 
+#### Accessing individual fields of a struct
+*The . operator is used to access the individual fields of a structure, just like Class*
+```go
+type Employee struct {  
+    firstName, lastName string
+    age, salary         int
+}
+e6 := Employee{"Sam", "Anderson", 55, 6000}
+fmt.Println("First Name:", e6.firstName)
 
+var e7 Employee
+e7.firstName = "Jack"
+e7.lastName = "Adams"
+fmt.Println("Employee 7:", e7)
+```
 
+#### Pointers to a struct
+```go
+e8 := &Employee{"Sam", "Anderson", 55, 6000}
+fmt.Println("First Name:", (*e8).firstName)
 
+****actually, when a variable point to a reference type, it is a pointer !! ****
+    e8 := &Employee{"Sam", "Anderson", 55, 6000}
+    (*e8).firstName
+equals to:
+    e8 := Employee{"Sam", "Anderson", 55, 6000}
+    e8.firstName
+```
 
+#### Nested structs
+It is possible that a struct contains a field which in turn is a struct. 
+```go
+type Address struct {  
+    city, state string
+}
+type Person struct {  
+    name string
+    age int
+    address Address
+}
+func main() {  
+    var p Person
+    p.name = "Naveen"
+    p.age = 50
+    p.address = Address {
+        city: "Chicago",
+        state: "Illinois",
+    }
+    fmt.Println("Name:", p.name)
+    fmt.Println("Age:",p.age)
+    fmt.Println("City:",p.address.city)
+    fmt.Println("State:",p.address.state)
+}
+```
 
+#### Promoted fields
+Fields that belong to a anonymous struct field in a structure are called promoted fields.     
+since they can be accessed as if they belong to the structure which holds the anonymous struct field.     
+```go
+type Address struct {  
+    city, state string
+}
+type Person struct {  
+    name string
+    age  int
+    Address
+}
+func main() {  
+    var p Person
+    p.name = "Naveen"
+    p.age = 50
+    p.Address = Address{
+        city:  "Chicago",
+        state: "Illinois",
+    }
+    fmt.Println("Name:", p.name)
+    fmt.Println("Age:", p.age)
+    fmt.Println("City:", p.city)      //city is promoted field
+    fmt.Println("State:", p.state)    //state is promoted field
+}
+```
 
+#### Exported Structs and Fields
+If a struct type starts with a capital letter, then it is a exported type and it can be accessed from other packages.    
+Similarly if the fields of a structure start with caps, they can be accessed from other packages.     
+```go
+type Spec struct {  //exported struct  
+    Maker string    //exported field
+    model string      //unexported field
+    Price int       //exported field
+}
+```
 
+#### Structs Equality
+```go
+//Structs are value types and are comparable if each of their fields are comparable.    
+//Two struct variables are considered equal if their corresponding fields are equal.    
+name1 := name{"Steve", "Jobs"}
+name2 := name{"Steve", "Jobs"}
+if name1 == name2 {
+    fmt.Println("name1 and name2 are equal")
+} else {
+    fmt.Println("name1 and name2 are not equal")
+}
 
+name3 := name{firstName:"Steve", lastName:"Jobs"}
+name4 := name{}
+name4.firstName = "Steve"
+if name3 == name4 {
+    fmt.Println("name3 and name4 are equal")
+} else {
+    fmt.Println("name3 and name4 are not equal")
+}
 
+//But, Struct variables are not comparable if they contain fields which are not comparable.
+type image struct {  
+    data map[int]int
+}
+func main() {  
+    image1 := image{data: map[int]int{
+        0: 155,
+    }}
+    image2 := image{data: map[int]int{
+        0: 155,
+    }}
+    if image1 == image2 {  // Error: struct containing map[int]int cannot be compared
+        fmt.Println("image1 and image2 are equal")
+    }
+}
+```
 
+#### Methods (function associated with a Type, like Class Methods)
+A method is just a function with a special receiver type that is written between the func keyword and the method name.     
+The receiver can be either struct type or non struct type. The receiver is available for access inside the method.     
+func (t Type) methodName(parameter list) {         
+}       
+```go
+type Employee struct {  
+    name     string
+    salary   int
+}
+// displaySalary() method has Employee as the receiver type
+func (e Employee) displaySalary() {  
+    fmt.Printf("Salary of %s is %d", e.name, e.salary)
+}
+func main() {  
+    emp1 := Employee {
+        name:     "michaely",
+        salary:   25000,
+    }
+    emp1.displaySalary() //Calling displaySalary() method of Employee type
+}
 
+**** Go is not a pure object oriented programming language and it does not support classes. 
+**** Hence methods on types is a way to achieve behaviour similar to classes.
+```
 
+#### Pointer receivers vs value receivers of Methods
+```go
+type Employee struct {  
+    name string
+    age  int
+}
+// Method with value receiver  
+func (e Employee) changeName(newName string) {  
+    e.name = newName
+}
+// Method with pointer receiver  
+func (e *Employee) changeAge(newAge int) {  
+    e.age = newAge
+}
+func main() {  
+    e := Employee{
+        name: "Mark Andrew",
+        age:  50,
+    }
+    fmt.Printf("Employee name before change: %s", e.name)      //Mark Andrew
+    e.changeName("Michael johson") 
+    fmt.Printf("Employee name after change: %s", e.name)       //Mark Andrew
 
+    fmt.Printf("Employee age before change: %d", e.age)        //50
+    (&e).changeAge(51)  // equals to e.changeAge(51)
+    fmt.Printf("Employee age after change: %d", e.age)         //51
 
+    e.changeAge(52)     // will be interpreted as (&e).changeAge(52) by the language.
+    fmt.Printf("Employee age after change: %d", e.age)         //52
+}
+```
 
+#### When to use pointer receiver and when to use value receiver
+```
+Generally pointer receivers can be used when changes made to the receiver inside the method should be visible to the caller.
+Pointers receivers can also be used in places where its expensive to copy a data structure. 
+Consider a struct which has many fields. Using this struct as a value receiver in a method will need the entire struct to be copied which will be expensive. 
+In this case if a pointer receiver is used, the struct will not be copied and only a pointer to it will be used in the method.
+```
 
+#### Methods of anonymous fields
+Methods belonging to anonymous fields of a struct can be called as if they belong to the structure where the anonymous field is defined.
+```go
+type address struct {  
+    city  string
+    state string
+}
+func (a address) fullAddress() {  
+    fmt.Printf("Full address: %s, %s", a.city, a.state)
+}
+type person struct {  
+    firstName string
+    lastName  string
+    address
+}
+func main() {  
+    p := person{
+        firstName: "Elon",
+        lastName:  "Musk",
+        address: address {
+            city:  "Los Angeles",
+            state: "California",
+        },
+    }
+    p.fullAddress() //accessing fullAddress method of address struct
+}
+```
 
+#### Value receivers in methods .VS. value arguments in functions
+```go
+type rectangle struct {  
+    length int
+    width  int
+}
+func area(r rectangle) {  
+    fmt.Printf("Area Function result: %d\n", (r.length * r.width))
+}
+func (r rectangle) area() {  
+    fmt.Printf("Area Method result: %d\n", (r.length * r.width))
+}
+func main() {  
+    r := rectangle{
+        length: 10,
+        width:  5,
+    }
+    area(r)   
+    r.area()
 
+    p := &r
+    area(p)   //compilation Error: cannot use p (type *rectangle) as type rectangle in argument to area  
+    p.area()  //OK, equals to r.area()
+}
+```
 
+#### Pointer receivers in methods .VS. pointer arguments in functions.
+```go
+type rectangle struct {  
+    length int
+    width  int
+}
+func perimeter(r *rectangle) {  
+    fmt.Println("perimeter function output:", 2*(r.length+r.width))
 
+}
+func (r *rectangle) perimeter() {  
+    fmt.Println("perimeter method output:", 2*(r.length+r.width))
+}
+func main() {  
+    r := rectangle{
+        length: 10,
+        width:  5,
+    }
+    p := &r //pointer to r
+    perimeter(p)
+    p.perimeter()
 
+    perimeter(r)    //Error: cannot use r (type rectangle) as type *rectangle in argument to perimeter
+    r.perimeter()   //OK, equals to p.perimeter()
+}
+```
 
+#### Methods on non-struct types
+```
+It is also possible to define methods on non struct types but there is a catch. 
+To define a method on a type, 
+the definition of the receiver type of the method and the definition of the method must be in the same package !!
+```
+```go
+package main
+func (a int) add(b int) {   // Error: int type definition and method definition not in same package.
+}
+func main() {
+}
+//This is not allowed since the definition of the method add and the definition of type int are not in the same package. 
+//This program will throw compilation error: cannot define new methods on non-local type int
 
+//right way to do it:
+//Create a type alias for the built-in type int and then create a method with this type alias as the receiver.
+type myInt int
+func (a myInt) add(b myInt) myInt {  
+    return a + b
+}
+func main() {  
+    num1 := myInt(5)
+    num2 := myInt(10)
+    sum := num1.add(num2)
+    fmt.Println("Sum is", sum)
+}
 
+```
 
+#### Interface
 
+```go
+
+```
 
 
 
