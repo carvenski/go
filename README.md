@@ -1618,6 +1618,11 @@ A nil interface has both its underlying value and as well as concrete type as ni
 
 
 
+-----------------------------------------------------------------------
+        thanks to: https://golangbot.com/learn-golang-series/
+-----------------------------------------------------------------------
+
+[golangbot.com course](https://golangbot.com/learn-golang-series/)
 
 
 
