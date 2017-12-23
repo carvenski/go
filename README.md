@@ -912,6 +912,10 @@ p := &b
 p++     // Error: go pointer can't do arithmetic
 ```
 
+----------------------------------------
+  # OOP in Go, by Structure, no Class.
+----------------------------------------
+
 #### Structure (A structure is a user defined type which represents a collection of fields)
 *in go, we use structure to realize Class & OOP staff*
 ```go
@@ -1252,11 +1256,361 @@ func main() {
 
 ```
 
-#### Interface
-
+#### Interface (In Go, an interface is a set of method signatures)
+    in the OOP world, "interface defines the behaviour of an object". 
+    It only specifies what the object is supposed to do. 
+    The way of achieving this behaviour (implementation detail) is upto the object.
+    
+    When a type provides definition for all the methods in the interface, it is said to implement the interface. 
+    Interface specifies what methods a type should have and the type decides how to implement these methods.
+    go interfaces are implemented implicitly if a type contains all the methods declared in the interface.
 ```go
+//interface definition
+type VowelsFinder interface {  
+    FindVowels() []rune
+}
 
+type MyString string
+
+//MyString implements VowelsFinder
+func (ms MyString) FindVowels() []rune {  
+    var vowels []rune
+    for _, rune := range ms {
+        if rune == 'a' || rune == 'e' || rune == 'i' || rune == 'o' || rune == 'u' {
+            vowels = append(vowels, rune)
+        }
+    }
+    return vowels
+}
+
+func main() {  
+    name := MyString("Sam Anderson")
+    var v VowelsFinder
+    v = name    // OK since MyString has implemented VowelsFinder interface.
+    fmt.Printf("Vowels are %c", v.FindVowels())
+}
 ```
+
+#### Usage of Interface
+```go
+type SalaryCalculator interface {  
+    CalculateSalary() int
+}
+type Permanent struct {  
+    empId    int
+    basicpay int
+    pf       int
+}
+type Contract struct {  
+    empId  int
+    basicpay int
+}
+
+//salary of permanent employee is sum of basic pay and pf
+func (p Permanent) CalculateSalary() int {  
+    return p.basicpay + p.pf
+}
+
+//salary of contract employee is the basic pay alone
+func (c Contract) CalculateSalary() int {  
+    return c.basicpay
+}
+
+func totalExpense(s []SalaryCalculator) {  
+    expense := 0
+    for _, v := range s {
+        expense = expense + v.CalculateSalary()
+    }
+    fmt.Printf("Total Expense Per Month $%d", expense)
+}
+func main() {  
+    pemp1 := Permanent{1, 5000, 20}
+    pemp2 := Permanent{2, 6000, 30}
+    cemp1 := Contract{3, 3000}
+    employees := []SalaryCalculator{pemp1, pemp2, cemp1}
+    totalExpense(employees)
+}
+```
+
+#### Usage of Empty Interface
+An interface which has zero methods is called empty interface. It is represented as interface{}. 
+Since the empty interface has zero methods, all types implement the empty interface.
+```go
+func describe(i interface{}) {    // now you can pass any type here !!
+    fmt.Printf("Type = %T, value = %v\n", i, i)
+}
+func main() {  
+    s := "Hello World"
+    describe(s)
+    i := 55
+    describe(i)
+    strt := struct {
+        name string
+    }{
+        name: "Naveen R",
+    }
+    describe(strt)
+}
+```
+
+#### Type Assertion
+Type assertion is used extract the underlying value of the interface.
+i.(T) is the syntax which is used to get the underlying value of interface i whose concrete type is T.
+```go
+func assert(i interface{}) {  
+    s := i.(int)      // get the underlying int value from i which type must be int !
+    fmt.Println(s)
+}
+func main() {  
+    var s interface{} = 56
+    assert(s)         // OK
+
+    var x interface{} = "Steven Paul"
+    assert(x)         // Error: panic: interface conversion: interface {} is string, not int.
+}
+
+
+// If the concrete type of i is not T then ok will be false and v will have the zero value of type T 
+// and the program will not panic !
+func assert(i interface{}) {  
+    v, ok := i.(int)         // if you receive returned error value, no panic then !!!
+    fmt.Println(v, ok)       
+}
+func main() {  
+    var s interface{} = 56   // 56 true  
+    assert(s)
+    var i interface{} = "Steven Paul"
+    assert(i)                // no panic,  0 false  
+}
+
+//-------------------------------------------------------------------------------------------------------------
+//****if you reveive the error value from a function, Go thought that you will handle the exception youself ??
+//****so Go won't throw the panic then, right ?? SHIT...
+//-------------------------------------------------------------------------------------------------------------
+```
+
+#### Type Switch
+    A type switch is used to the compare the concrete type of an interface against multiple types specified in various case statements.
+    It is similar to switch case. The only difference being the cases specify types and not values as in normal switch.
+```go
+func findType(i interface{}) {  
+    switch i.(type) {
+    case string:
+        fmt.Printf("I am a string and my value is %s", i.(string))
+    case int:
+        fmt.Printf("I am an int and my value is %d", i.(int))
+    default:
+        fmt.Printf("Unknown type")
+    }
+}
+func main() {  
+    findType("Naveen")
+    findType(77)
+    findType(89.98)
+}
+
+//can also use interface with type
+type Describer interface {  
+    Describe()
+}
+type Person struct {  
+    name string
+    age  int
+}
+func (p Person) Describe() {  
+    fmt.Printf("%s is %d years old", p.name, p.age)
+}
+func findType(i interface{}) {  
+    switch v := i.(type) {
+    case Describer:
+        v.Describe()
+    default:
+        fmt.Printf("unknown type")
+    }
+}
+func main() {  
+    findType("Naveen")
+    p := Person{
+        name: "Naveen R",
+        age:  25,
+    }
+    findType(p)
+}
+```
+
+*TODO:*
+#### Implementing interfaces using pointer receivers vs value receivers  
+###### (please review "Pointer receivers vs value receivers of Methods" first)
+*think of the difference here between them ??*
+```go
+type Describer interface {  
+    Describe()
+}
+type Person struct {  
+    name string
+    age  int
+}
+func (p Person) Describe() {                            //implemented using value receiver  
+    fmt.Printf("%s is %d years old\n", p.name, p.age)
+}
+type Address struct {  
+    state   string
+    country string
+}
+func (a *Address) Describe() {                          //implemented using pointer receiver  
+    fmt.Printf("State %s Country %s", a.state, a.country)
+}
+// ------------------------------------------------------------------------------------------------
+func main() {  
+    var d1 Describer         // if `var d1 Person` here, opposite result !!??
+    p1 := Person{"Sam", 25}
+    d1 = p1                  //
+    d1.Describe()
+    p2 := Person{"James", 32}
+    d1 = &p2                 //
+    d1.Describe()
+
+    var d2 Describer         // if `var d1 Address` here, opposite result !!??
+    a1 := Address{"Washington", "USA"}    
+    d2 = a1                  //
+    d2.Describe()
+    a2 := Address{"shanghai", "CN"}    
+    d2 = &a2                 //
+    d2.Describe()
+}
+
+//Explantion: ????
+//This is because, the Describer interface is implemented using a Address Pointer receiver and 
+//we are trying to assign a1 which is a value type and it has not implemented the Describer interface. 
+//This will definitely surprise you since we learnt earlier that 
+//methods with pointer receivers will accept both pointer and value receivers.
+//Then why is the code opposite here ?
+//
+//The reason is that it is legal to call a pointer-valued method on anything that is already a pointer or whose address can be taken.
+//The concrete value stored in an interface is not addressable and hence 
+//it is not possible for the compiler to automatically take the address of a1 and hence this code fails.
+// ------------------------------------------------------------------------------------------------
+```
+
+#### implementing multiple interfaces(A type can implement more than one interface)
+```go
+type SalaryCalculator interface {  
+    DisplaySalary()
+}
+type LeaveCalculator interface {  
+    CalculateLeavesLeft() int
+}
+type Employee struct {  
+    firstName string
+    lastName string
+    basicPay int
+    pf int
+    totalLeaves int
+    leavesTaken int
+}
+func (e Employee) DisplaySalary() {  
+    fmt.Printf("%s %s has salary $%d", e.firstName, e.lastName, (e.basicPay + e.pf))
+}
+func (e Employee) CalculateLeavesLeft() int {  
+    return e.totalLeaves - e.leavesTaken
+}
+func main() {  
+    e := Employee {
+        firstName: "Naveen",
+        lastName: "Ramanathan",
+        basicPay: 5000,
+        pf: 200,
+        totalLeaves: 30,
+        leavesTaken: 5,
+    }
+    var s SalaryCalculator = e
+    s.DisplaySalary()
+    var l LeaveCalculator = e
+    fmt.Println("\nLeaves left =", l.CalculateLeavesLeft())
+}
+```
+
+#### Embedding interfaces
+*Although go does not offer inheritance, it is possible to create a new interfaces by embedding other interfaces.*
+```go
+type SalaryCalculator interface {  
+    DisplaySalary()
+}
+type LeaveCalculator interface {  
+    CalculateLeavesLeft() int
+}
+
+//Any type is said to implement EmployeeOperations interface if 
+//it provides method definitions for the methods present in both SalaryCalculator and LeaveCalculator interfaces.
+type EmployeeOperations interface {  
+    SalaryCalculator
+    LeaveCalculator
+}
+type Employee struct {  
+    firstName string
+    lastName string
+    basicPay int
+    pf int
+    totalLeaves int
+    leavesTaken int
+}
+func (e Employee) DisplaySalary() {  
+    fmt.Printf("%s %s has salary $%d", e.firstName, e.lastName, (e.basicPay + e.pf))
+}
+func (e Employee) CalculateLeavesLeft() int {  
+    return e.totalLeaves - e.leavesTaken
+}
+func main() {  
+    e := Employee {
+        firstName: "Naveen",
+        lastName: "Ramanathan",
+        basicPay: 5000,
+        pf: 200,
+        totalLeaves: 30,
+        leavesTaken: 5,
+    }
+    var empOp EmployeeOperations = e
+    empOp.DisplaySalary()
+    fmt.Println("\nLeaves left =", empOp.CalculateLeavesLeft())
+}
+```
+
+#### Zero value of Interface
+The zero value of a interface is nil. 
+A nil interface has both its underlying value and as well as concrete type as nil.
+
+
+-----------------------------------------------------------------------
+      Concurrency in Go, use goroutine & channel,     
+      just like coroutine & queue in Python but more simple/powerful.
+-----------------------------------------------------------------------
+##### Concurrency
+
+
+
+
+-----------------------------------------------------------------------
+             Structs Instead of Classes 
+             Composition Instead of Inheritance 
+-----------------------------------------------------------------------
+#### Object Oriented Programming
+
+
+
+
+
+-----------------------------------------------------------------------
+    Go has no try-except-finally, but defer/panic/recover, SHIT...
+-----------------------------------------------------------------------
+#### Defer and Error Handling
+
+
+
+
+
+
+
+
 
 
 
