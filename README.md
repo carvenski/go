@@ -1584,7 +1584,353 @@ A nil interface has both its underlying value and as well as concrete type as ni
       Concurrency in Go, use goroutine & channel,     
       just like coroutine & queue in Python but more simple/powerful.
 -----------------------------------------------------------------------
-##### Concurrency
+## Concurrency(concurrency != parallel)
+#### Goroutine introduce
+    Goroutines are functions or methods that run concurrently with other functions or methods.
+    Goroutines can be thought of as light weight threads. 
+
+    They are only a few kb in stack size and the stack can grow and shrink according to needs of the application 
+    whereas in the case of threads the stack size has to be specified and is fixed.
+
+    The Goroutines are multiplexed to fewer number of OS threads. 
+    There might be only one thread in a program with thousands of Goroutines. 
+    If any Goroutine in that thread blocks say waiting for user input, then another OS thread is created and 
+    the remaining Goroutines are moved to the new OS thread. 
+    All these are taken care by the runtime and we as programmers are abstracted from these intricate details and 
+    are given a clean API to work with concurrency.
+
+    Goroutines communicate using channels. 
+    Channels by design prevent race conditions from happening when accessing shared memory using Goroutines. 
+    Channels can be thought of as a pipe using which Goroutines communicate.
+
+#### start a goroutine
+```go
+func hello() {  
+    fmt.Println("Hello world goroutine")
+}
+func main() {  
+    go hello()                    //Now the hello() function will run concurrently along with the main() function.
+    fmt.Println("main function")  //The main function runs in its own Goroutine and its called the main Goroutine.
+}
+
+//When a new Goroutine is started, the goroutine call returns immediately. 
+//Unlike functions, the control does not wait for the Goroutine to finish executing. 
+//The control returns immediately to the next line of code after the Goroutine call and 
+//any return values from the Goroutine are ignored.
+//The main Goroutine should be running for any other Goroutines to run. 
+//If the main Goroutine terminates then the program will be terminated and no other Goroutine will run.
+// so, the hello Goroutine did not get a chance to run at all... 
+
+//let's make main goroutine wait for other goroutines running.
+func numbers() {  
+    for i := 1; i <= 5; i++ {
+        time.Sleep(250 * time.Millisecond)
+        fmt.Printf("%d ", i)
+    }
+}
+func alphabets() {  
+    for i := 'a'; i <= 'e'; i++ {
+        time.Sleep(400 * time.Millisecond)
+        fmt.Printf("%c ", i)
+    }
+}
+func main() {  
+    go numbers()
+    go alphabets()
+    time.Sleep(3000 * time.Millisecond)
+    fmt.Println("main terminated")
+}
+```
+![goroutine](https://golangbot.com/content/images/2017/07/Goroutines-explained.png "*one awesome graph explantion of goroutine*")
+
+#### Channel
+    Channels can be thought as pipes using which Goroutines communicate. 
+    Similar to how water flows from one end to another in a pipe, 
+    data can be sent from one end and received from the another end using channels.
+    *Each channel has a type associated with it. 
+    This type is the type of data that the channel is allowed to transport. 
+    No other type is allowed to be transported using the channel.
+    The zero value of a channel is nil if you just declare it. (var a chan int)
+    *nil channels are no use and hence the channel has to be defined using make() similar to maps and slices.
+    so, use make() more in go! `a := make(chan int)` 
+
+```go
+a := make(chan int)
+data := <- a    // read from channel a  
+a <- data       // write to channel a  
+```
+
+#### Send and Receive are blocking of unbuffered channel(queue_length=0) by default
+    When a data is sent to a channel, the control is blocked in the send statement until some other Goroutine reads from that channel.
+    Similarly when data is read from a channel, the read is blocked until some Goroutine writes data to that channel.
+    This property of channels is what helps Goroutines communicate effectively without the use of explicit locks or conditional variables that are quite common in other programming languages.
+```go
+func hello(done chan bool) {  
+    fmt.Println("Hello world goroutine")
+    done <- true                    // block here until someone read from done channel 
+}
+func main() {  
+    done := make(chan bool)
+    go hello(done)
+    <-done                          // block here until someone write to done channel 
+    fmt.Println("main function")
+}
+```
+```go
+//example to split a task into different goroutines to run concurrently:
+func calcSquares(number int, squareop chan int) {  
+    sum := 0
+    for number != 0 {
+        digit := number % 10
+        sum += digit * digit
+        number /= 10
+    }
+    squareop <- sum
+}
+func calcCubes(number int, cubeop chan int) {  
+    sum := 0 
+    for number != 0 {
+        digit := number % 10
+        sum += digit * digit * digit
+        number /= 10
+    }
+    cubeop <- sum
+} 
+func main() {  
+    number := 589
+    sqrch := make(chan int)
+    cubech := make(chan int)
+    go calcSquares(number, sqrch)
+    go calcCubes(number, cubech)
+    squares, cubes := <-sqrch, <-cubech    //can also use 1 channel but read twice to realize same effect here
+    fmt.Println("Final output", squares + cubes)
+}
+```
+
+#### Deadlock
+```go
+func main() {  
+    ch := make(chan int)
+    ch <- 5               //Error: only write no read 
+}
+```
+
+#### Unidirectional channels
+    All the channels we discussed so far are bidirectional channels, that is data can be both sent and received on them. 
+    It is also possible to create unidirectional channels, that is channels that only send or receive data.
+    It is possible to convert a bidirectional channel to a send only or receive only channel but not the vice versa.
+```go
+func sendData(sendch chan<- int) {   //sendch is a write-only channel
+    sendch <- 10
+}
+func main() {  
+    chnl := make(chan int)
+    go sendData(chnl)                //OK, automatical convertion
+    fmt.Println(<-chnl)
+}
+```
+
+#### Closing channels and for range loops on channels
+*Senders have the ability to close the channel to notify receivers that no more data will be sent on the channel.*
+```go
+//Receivers can use an additional variable while receiving data from the channel to check whether the channel has been closed.
+//If ok is false it means that we are reading from a closed channel. The value read from a closed channel will be the zero value of the channel's type. 
+v, ok := <- ch  
+
+func producer(chnl chan int) {  
+    for i := 0; i < 10; i++ {
+        chnl <- i
+    }
+    close(chnl)     // close channel after all writing task is done.
+}
+func main() {  
+    ch := make(chan int)
+    go producer(ch)
+    for {
+        v, ok := <-ch
+        if ok == false {    //will be notified that the channel is closed, task already done.
+            break
+        }
+        fmt.Println("Received ", v, ok)
+    }
+}
+```
+
+#### iterate a channel
+    The for range form of the for loop can be used to receive values from a channel until it is closed.
+```go
+func producer(chnl chan int) {  
+    for i := 0; i < 10; i++ {
+        chnl <- i
+    }
+    close(chnl)
+}
+func main() {  
+    ch := make(chan int)
+    go producer(ch)
+    for v := range ch {            // best way to read from channel until closed.
+        fmt.Println("Received ",v)
+    }
+}
+```
+```go
+//use multi goroutines to cooperate with each other example:
+func digits(number int, dchnl chan int) {  
+    for number != 0 {
+        digit := number % 10
+        dchnl <- digit
+        number /= 10
+    }
+    close(dchnl)
+}
+func calcSquares(number int, squareop chan int) {  
+    sum := 0
+    dch := make(chan int)
+    go digits(number, dch)
+    for digit := range dch {
+        sum += digit * digit
+    }
+    squareop <- sum
+}
+func calcCubes(number int, cubeop chan int) {  
+    sum := 0
+    dch := make(chan int)
+    go digits(number, dch)
+    for digit := range dch {
+        sum += digit * digit * digit
+    }
+    cubeop <- sum
+}
+func main() {  
+    number := 589
+    sqrch := make(chan int)
+    cubech := make(chan int)
+    go calcSquares(number, sqrch)
+    go calcCubes(number, cubech)
+    squares, cubes := <-sqrch, <-cubech
+    fmt.Println("Final output", squares+cubes)
+}
+```
+
+#### Buffered Channel(queue_length > 0), and use buffered channel to realize a Worker Pool
+*send/receive to an unbuffered channel are blocking.*
+*send/receive to an buffered channel are only blocking when channel is full/empty.*
+    It is possible to create a channel with a buffer.(just like a queue has a buffer) 
+    Sends to a buffered channel are blocked only when the buffer is full. 
+    Receives from a buffered channel are blocked only when the buffer is empty.
+    ch := make(chan type, capacity)  //capacity > 0
+```go
+//example 1:
+func main() {  
+    ch := make(chan string, 2)
+    ch <- "naveen"      
+    ch <- "paul"
+    fmt.Println(<- ch)
+    fmt.Println(<- ch)
+}
+```
+```go
+//example 2:
+func write(ch chan int) {  
+    for i := 0; i < 5; i++ {
+        ch <- i
+        fmt.Println("successfully wrote", i, "to ch")
+    }
+    close(ch)
+}
+func main() {  
+    ch := make(chan int, 2)
+    go write(ch)
+    time.Sleep(2 * time.Second)
+    for v := range ch {
+        fmt.Println("read value", v,"from ch")
+        time.Sleep(2 * time.Second)
+
+    }
+}
+```
+```go
+//example 3:
+func main() {  
+    ch := make(chan string, 2)
+    ch <- "naveen"
+    ch <- "paul"
+    ch <- "steve"          //deadlock here...
+    fmt.Println(<-ch)
+    fmt.Println(<-ch)
+}
+```
+
+#### Length & Capacity of a buffered channel
+```go
+//The capacity of a buffered channel is the number of values that the channel can hold. This is the value we specify when creating the buffered channel using the make() function.
+//The length of the buffered channel is the number of elements currently queued in it.
+func main() {  
+    ch := make(chan string, 3)
+    ch <- "naveen"
+    ch <- "paul"
+    fmt.Println("capacity is", cap(ch))
+    fmt.Println("length is", len(ch))
+    fmt.Println("read value", <-ch)
+    fmt.Println("new length is", len(ch))
+}
+```
+
+#### WaitGroup
+    A WaitGroup is used to wait for a collection of Goroutines to finish executing. 
+    The control is blocked until all Goroutines finish executing. 
+    Lets say we have 3 concurrently executing Goroutines spawned from the main Goroutine. 
+    The main Goroutines needs to wait for the 3 other Goroutines to finish before terminating. 
+    This can be accomplished using WaitGroup.
+    WaitGroup is a struct type actually. The way WaitGroup works is by using a counter. 
+    (//structure is value or reference type when passing it ??)
+    When we call Add on the WaitGroup and pass it an int, the WaitGroup's counter is incremented by the value passed to Add.
+    The way to decrement the counter is by calling Done() method on the WaitGroup. 
+    The Wait() methods blocks the Goroutine in which its called until the counter becomes zero.
+```go
+func process(i int, wg *sync.WaitGroup) {  
+    fmt.Println("started Goroutine ", i)
+    time.Sleep(2 * time.Second)
+    fmt.Printf("Goroutine %d ended", i)
+    wg.Done()
+}
+func main() {  
+    no := 3
+    var wg sync.WaitGroup
+    for i := 0; i < no; i++ {
+        wg.Add(1)
+        go process(i, &wg)     //must use pointer here to change wg inside other function !! //structure is value or reference type when passing it??
+    }
+    wg.Wait()                  // block here until all goroutines in waitgroup finished.
+    fmt.Println("All go routines finished executing")
+}
+```
+
+### Worker Pool Implementation, by goroutine & buffered channel
+**One of the important uses of buffered channel is the implementation of worker pool.**
+    In general, a worker pool is a collection of threads which are waiting for tasks to be assigned to them.    
+    Once they finish the task assigned, they make themselves available again for the next task.     
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
