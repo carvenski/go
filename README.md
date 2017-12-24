@@ -2054,8 +2054,11 @@ func main() {
     you must realize that, the `x = x + 1` is not finished at 1 step immediately in deeper level... !!! 
     When these 3 steps are carried out by only one Goroutine, all is well.
     But when 2 Goroutines run this code concurrently, what happens ??
+
 ***2 awesome graph explantion of race condition***
+
 ![goroutine](https://golangbot.com/content/images/2017/08/cs5.png "*one awesome graph explantion of race condition*")
+
 1.We have assumed the initial value of x to be 0. 
 Goroutine 1 gets the initial value of x, computes x + 1 and before it could assign the computed value to x, the system context switches to Goroutine 2. 
 Now Goroutine 2 gets the initial value of x which is still 0, computes x + 1. After this the system context switches again to Goroutine 1. 
@@ -2063,6 +2066,7 @@ Now Goroutine 1 assigns it's computed value 1 to x and hence x becomes 1.
 Then Goroutine 2 starts execution again and then assigns it's computed value, which is again 1 to x and hence x is 1 after both Goroutines execute.
 
 ![goroutine](https://golangbot.com/content/images/2017/08/cs-6.png "*one awesome graph explantion of race condition*")
+
 2.a different scenario of what could happen: 
 In the above scenario, Goroutine 1 starts execution and finishes all its three steps and hence the value of x becomes 1. 
 Then Goroutine 2 starts execution. Now the value of x is 1 and when Goroutine 2 finishes execution, the value of x is 2.
