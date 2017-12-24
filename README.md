@@ -1641,6 +1641,7 @@ func main() {
     fmt.Println("main terminated")
 }
 ```
+***one awesome graph explantion of goroutine***
 ![goroutine](https://golangbot.com/content/images/2017/07/Goroutines-explained.png "*one awesome graph explantion of goroutine*")
 
 #### Channel
@@ -1910,29 +1911,231 @@ func main() {
 **One of the important uses of buffered channel is the implementation of worker pool.**
     In general, a worker pool is a collection of threads which are waiting for tasks to be assigned to them.    
     Once they finish the task assigned, they make themselves available again for the next task.     
+    more goroutines in worker pool, less time taken to finish jobs.
+```go
+package main
+import (  
+    "fmt"
+    "math/rand"
+    "sync"
+    "time"
+)
+type Job struct {  
+    id       int
+    randomno int
+}
+type Result struct {  
+    job         Job
+    sumofdigits int
+}
+var jobs = make(chan Job, 10)  
+var results = make(chan Result, 10)
+func digits(number int) int {  
+    sum := 0
+    no := number
+    for no != 0 {
+        digit := no % 10
+        sum += digit
+        no /= 10
+    }
+    time.Sleep(2 * time.Second)
+    return sum
+}
+func worker(wg *sync.WaitGroup) {  
+    for job := range jobs {
+        output := Result{job, digits(job.randomno)}
+        results <- output
+    }
+    wg.Done()
+}
+func createWorkerPool(noOfWorkers int) {  
+    var wg sync.WaitGroup
+    for i := 0; i < noOfWorkers; i++ {
+        wg.Add(1)
+        go worker(&wg)
+    }
+    wg.Wait()
+    close(results)
+}
+func allocate(noOfJobs int) {  
+    for i := 0; i < noOfJobs; i++ {
+        randomno := rand.Intn(999)
+        job := Job{i, randomno}
+        jobs <- job
+    }
+    close(jobs)
+}
+func result(done chan bool) {  
+    for result := range results {
+        fmt.Printf("Job id %d, input random no %d , sum of digits %d\n", result.job.id, result.job.randomno, result.sumofdigits)
+    }
+    done <- true
+}
+func main() {  
+    startTime := time.Now()
+    noOfJobs := 100
+    go allocate(noOfJobs)
+    done := make(chan bool)
+    go result(done)
+    noOfWorkers := 10   //as the number of worker Goroutines increase, the total time taken to complete the jobs decreases.
+    createWorkerPool(noOfWorkers)
+    <-done
+    endTime := time.Now()
+    diff := endTime.Sub(startTime)
+    fmt.Println("total time taken ", diff.Seconds(), "seconds")
+}
+```
+#### select
+    The select statement is used to choose from multiple send/receive channel operations. 
+    The select statement blocks until one of the send/receive operation is ready. 
+    If multiple operations are ready, one of them is chosen at random. 
+```go
+func server1(ch chan string) {  
+    time.Sleep(6 * time.Second)
+    ch <- "from server1"
+}
+func server2(ch chan string) {  
+    time.Sleep(3 * time.Second)
+    ch <- "from server2"
 
+}
+func main() {  
+    output1 := make(chan string)
+    output2 := make(chan string)
+    go server1(output1)
+    go server2(output2)
+    select {
+    case s1 := <-output1:
+        fmt.Println(s1)
+    case s2 := <-output2:
+        fmt.Println(s2)
+    }
+}
+```
+```go
+func process(ch chan string) {  
+    time.Sleep(10500 * time.Millisecond)
+    ch <- "process successful"
+}
+func main() {  
+    ch := make(chan string)
+    go process(ch)
+    for {
+        time.Sleep(1000 * time.Millisecond)
+        select {
+        case v := <-ch:
+            fmt.Println("received value: ", v)
+            return
+        default:  // The default case in a select statement is executed when none of the other case is ready.  
+            fmt.Println("no value received")
+        }
+    }
 
+}
+```
 
+#### race condition and Mutex(使用互斥锁避免竞态条件)
+*learn how to solve race conditions using mutexes and channels.*
+*please think about race conditions in multi threads/processes*
 
+##### Critical section(临界区的概念 ?)
+    Before jumping to mutex, it is important to understand the concept of critical section in concurrent programming. 
+    when a program runs concurrently, the parts of code which modify shared resources should not be accessed by multiple Goroutines at the same time.
+    This section of code which modifies shared resources is called critical section. 
+    For example lets assume that we have some piece of code which increments a variable x by 1.
+    x = x + 1 
+    Internally the above line of code will be executed by the system in the following steps:
+    (there are more technical details involving registers, how addition works and so on but for simplicity lets assume that these are the three steps),
+        *step1: get the current value of x
+        *step2: compute x + 1
+        *step3: assign the computed value in step 2 to x
+    you must realize that, the `x = x + 1` is not finished at 1 step immediately in deeper level... !!! 
+    When these 3 steps are carried out by only one Goroutine, all is well.
+    But when 2 Goroutines run this code concurrently, what happens ??
+***2 awesome graph explantion of race condition***
+![goroutine](https://golangbot.com/content/images/2017/08/cs5.png "*one awesome graph explantion of race condition*")
+1.We have assumed the initial value of x to be 0. 
+Goroutine 1 gets the initial value of x, computes x + 1 and before it could assign the computed value to x, the system context switches to Goroutine 2. 
+Now Goroutine 2 gets the initial value of x which is still 0, computes x + 1. After this the system context switches again to Goroutine 1. 
+Now Goroutine 1 assigns it's computed value 1 to x and hence x becomes 1. 
+Then Goroutine 2 starts execution again and then assigns it's computed value, which is again 1 to x and hence x is 1 after both Goroutines execute.
 
+![goroutine](https://golangbot.com/content/images/2017/08/cs-6.png "*one awesome graph explantion of race condition*")
+2.a different scenario of what could happen: 
+In the above scenario, Goroutine 1 starts execution and finishes all its three steps and hence the value of x becomes 1. 
+Then Goroutine 2 starts execution. Now the value of x is 1 and when Goroutine 2 finishes execution, the value of x is 2.
 
+#### race condition and Mutex introduce
+    the two cases above you can see that the final value of x is 1 or 2 depending on how context switching happens. 
+    This type of undesirable situation where the output of the program depends on the sequence of execution of Goroutines is called race condition.
+    A Mutex is used to provide a locking mechanism to ensure that: 
+    only one Goroutine is running the critical section of code at any point of time to prevent race condition from happening.
+```go
+//Mutex is available in the sync package. There are two methods defined on Mutex namely Lock and Unlock. 
+//Any code that is present between a call to Lock and Unlock will be executed by only one Goroutine, thus avoiding race condition.
+mutex.Lock()  
+x = x + 1      //x = x + 1 now will be executed by only one Goroutine at any time thus preventing race condition.
+mutex.Unlock()
+//If one Goroutine already holds the lock and if a new Goroutine is trying to acquire a lock, the new Goroutine will be blocked until the mutex is unlocked.
+```
+```go
+//example 1: no mutex, race condition happens.
+var x  = 0  
+func increment(wg *sync.WaitGroup) {  
+    x = x + 1
+    wg.Done()
+}
+func main() {  
+    var w sync.WaitGroup
+    for i := 0; i < 1000; i++ {
+        w.Add(1)        
+        go increment(&w)
+    }
+    w.Wait()
+    fmt.Println("final value of x", x)    // x value will be different each time...
+}
 
+//example 2: use mutex, no race condition happens.
+var x  = 0  
+func increment(wg *sync.WaitGroup, m *sync.Mutex) {  
+    m.Lock()
+    x = x + 1
+    m.Unlock()
+    wg.Done()   
+}
+func main() {  
+    var w sync.WaitGroup
+    var m sync.Mutex
+    for i := 0; i < 1000; i++ {
+        w.Add(1)        
+        go increment(&w, &m) //must pass the pointer of the mutex. 
+    }                        //If passed value not pointer, each Goroutine will have its own copy of the mutex and the race condition will still occur!
+    w.Wait()
+    fmt.Println("final value of x", x)   // x = 1000, always
+}
 
+//example 3: Solving the race condition using channel.
+var x  = 0  
+func increment(wg *sync.WaitGroup, ch chan bool) {  
+    ch <- true    // 
+    x = x + 1     // ch here act just like a Lock. the 3 steps definitly run in 1 goroutine. awesome !
+    <- ch         //
+    wg.Done()   
+}
+func main() {  
+    var w sync.WaitGroup
+    ch := make(chan bool, 1)       
+    for i := 0; i < 1000; i++ {
+        w.Add(1)        
+        go increment(&w, ch)
+    }
+    w.Wait()
+    fmt.Println("final value of x", x)
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+//In general use channels when Goroutines need to communicate with each other and 
+//use mutexes when only one Goroutine should access the critical section of code.
+```
 
 
 -----------------------------------------------------------------------
@@ -1940,6 +2143,16 @@ func main() {
              Composition Instead of Inheritance 
 -----------------------------------------------------------------------
 #### Object Oriented Programming
+
+
+
+
+
+
+
+
+
+
 
 
 
