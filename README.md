@@ -1814,8 +1814,8 @@ func main() {
 ```
 
 #### Buffered Channel(queue_length > 0), and use buffered channel to realize a Worker Pool
-*send/receive to an unbuffered channel are blocking.*
-*send/receive to an buffered channel are only blocking when channel is full/empty.*
+    *send/receive to an unbuffered channel are blocking.*
+    *send/receive to an buffered channel are only blocking when channel is full/empty.*
 
     It is possible to create a channel with a buffer.(just like a queue has a buffer) 
     Sends to a buffered channel are blocked only when the buffer is full. 
