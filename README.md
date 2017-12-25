@@ -2681,26 +2681,12 @@ func r() {
 
 
 
-***congratulations, you have finished golang course***
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-======================================================================
+------------------------------------------------------------------------
+        congratulations, you have finished golang course.
         thanks to: https://golangbot.com/learn-golang-series/
-======================================================================
+------------------------------------------------------------------------
+
 [golangbot.com course](https://golangbot.com/learn-golang-series/)
 
 
