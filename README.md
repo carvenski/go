@@ -2145,29 +2145,543 @@ func main() {
 
 
 -----------------------------------------------------------------------
-             Structs Instead of Classes 
-             Composition Instead of Inheritance 
+      Object Oriented Programming in Go, write code in OOP more
 -----------------------------------------------------------------------
-#### Object Oriented Programming
 
+#### Structs Instead of Classes
+```go
+// just like Class:
+type Employee struct {  
+    FirstName   string
+    LastName    string
+    TotalLeaves int
+    LeavesTaken int
+ }
+func (e Employee) LeavesRemaining() {  
+    fmt.Printf("%s %s has %d leaves remaining", e.FirstName, e.LastName, (e.TotalLeaves - e.LeavesTaken))
+}
 
+func main() {  
+e := employee.Employee {
+        FirstName: "Sam",
+        LastName: "Adolf",
+        TotalLeaves: 30,
+        LeavesTaken: 20,
+    
+   }
+    e.LeavesRemaining()
+}
+```
 
+#### NewT() function to act like Constructor
+```
+    Go doesn't support constructors. 
+    If the zero value of a type is not usable, it is the job of the programmer to unexport the type to prevent access from other packages and 
+    also to provide a function named NewT(parameters) which initialises the type T with the required values.(you can write a NewEmployee() function here)
+    It is a convention in Go to name a function which creates a value of type T to NewT(parameters). This will act like a constructor.(it's totally controlled by your code)
+    If the package defines only one type, then its a convention in Go to name this function just New(parameters) instead of NewT(parameters).
+```
+```go
+//employee.go
+type employee struct {  
+    firstName   string
+    lastName    string
+    totalLeaves int
+    leavesTaken int
+}
+func NewEmployee(firstName string, lastName string, totalLeave int, leavesTaken int) employee {  
+    e := employee {firstName, lastName, totalLeave, leavesTaken}
+    return e
+}
+func (e employee) LeavesRemaining() {  
+    fmt.Printf("%s %s has %d leaves remaining", e.firstName, e.lastName, (e.totalLeaves - e.leavesTaken))
+}
 
+//main.go
+import "oop/employee"
+func main() {  
+    e := employee.NewEmployee("Sam", "Adolf", 30, 20)   
+    e.LeavesRemaining()
+}
+```
 
+#### Composition Instead of Inheritance
+**Go does not support inheritance, however it does support composition.**    
+**Composition can be achieved in Go is by embedding one struct type into another.**    
+```go
+//Composition can be achieved in Go is by embedding one struct type into another. 
+type author struct {  
+    firstName string
+    lastName  string
+    bio       string
+}
+func (a author) fullName() string {  
+    return fmt.Sprintf("%s %s", a.firstName, a.lastName)
+}
 
+type post struct {  
+    title     string
+    content   string
+    author
+}
+func (p post) details() {  
+    fmt.Println("Title: ", p.title)
+    fmt.Println("Content: ", p.content)
+    fmt.Println("Author: ", p.author.fullName())  //or: fmt.Println("Author: ", p.fullName()) 
+    fmt.Println("Bio: ", p.author.bio)            //or: fmt.Println("Bio: ", p.bio)
 
+//post struct has access to all the fields and methods of the author struct.
+//Whenever one struct field is embedded in another, Go gives us the option to access the embedded fields as if they were part of the outer struct.
+//This means that p.author.bio can be replaced with p.bio, p.author.fullName() can be replaced with p.fullName().(just like inheritance of Class)
+```
 
+#### embedding slice of structs
+```go
+type author struct {  
+    firstName string
+    lastName  string
+    bio       string
+}
+func (a author) fullName() string {  
+    return fmt.Sprintf("%s %s", a.firstName, a.lastName)
+}
+type post struct {  
+    title   string
+    content string
+    author
+}
+func (p post) details() {  
+    fmt.Println("Title: ", p.title)
+    fmt.Println("Content: ", p.content)
+    fmt.Println("Author: ", p.fullName())
+    fmt.Println("Bio: ", p.bio)
+}
 
+type website struct {  
+  posts []post
+}
+func (w website) contents() {  
+    fmt.Println("Contents of Website\n")
+        for _, v := range w.posts {
+        v.details()
+        fmt.Println()
+        }
+ }
+func main() {  
+  author1 := author{
+        "Naveen",
+        "Ramanathan",
+        "Golang Enthusiast",
+         }
+  post1 := post{
+        "Inheritance in Go",
+        "Go supports composition instead of inheritance",
+        author1,
+       }
+  post2 := post{
+        "Struct instead of Classes in Go",
+        "Go does not support classes but methods can be added to structs",
+        author1,
+       }
+  w := website{
+        posts: []post{post1, post2, post3},
+   }
+    w.contents()
+}
+```
 
-
-
-
+#### Polymorphism(所谓多态: 定义接口,接口有不同实现的type,写的时候用接口,真正用的时候却传入不同type)
+#### (OOP的3大特性: 封装/继承/多态)
+**A variable of type interface can hold any value which implements the interface. This property of interfaces is used to achieve polymorphism in Go.**
+```go
+type Income interface {  
+    calculate() int
+    source() string
+}
+type FixedBilling struct {  
+    projectName string
+    biddedAmount int
+}
+type TimeAndMaterial struct {  
+    projectName string
+    noOfHours  int
+    hourlyRate int
+}
+func (fb FixedBilling) calculate() int {  
+    return fb.biddedAmount
+}
+func (fb FixedBilling) source() string {  
+    return fb.projectName
+}
+func (tm TimeAndMaterial) calculate() int {  
+    return tm.noOfHours * tm.hourlyRate
+}
+func (tm TimeAndMaterial) source() string {  
+    return tm.projectName
+}
+func calculateNetIncome(ic []Income) {  
+    var netincome int = 0
+        for _, income := range ic {
+        fmt.Printf("Income From %s = $%d\n", income.source(), income.calculate())
+        netincome += income.calculate()
+        }
+    fmt.Printf("Net income of organisation = $%d", netincome)
+}
+func main() {  
+    project1 := FixedBilling{projectName: "Project 1", biddedAmount: 5000}
+    project2 := FixedBilling{projectName: "Project 2", biddedAmount: 10000}
+    project3 := TimeAndMaterial{projectName: "Project 3", noOfHours: 160, hourlyRate: 25}
+    incomeStreams := []Income{project1, project2, project3}
+    calculateNetIncome(incomeStreams)
+}
+```
 
 
 -----------------------------------------------------------------------
     Go has no try-except-finally, but defer/panic/recover, SHIT...
 -----------------------------------------------------------------------
 #### Defer and Error Handling
+**Defer statement is used to execute a function call just before the function where the defer statement is present returns.**
+```go
+func finished() {  
+    fmt.Println("defer here in last")
+}
+func main() {  
+    fmt.Println("main start 1")
+    defer finished()
+    fmt.Println("main start 2")
+}
+```
+***The arguments of a deferred function are evaluated when the defer statement is executed and not when the actual function call is done.***
+```go
+func printA(a int) {  
+    fmt.Println("value of a in deferred function", a)
+}
+func main() {  
+    a := 5
+    defer printA(a)  // a = 5 when defer shows up here, so when printA(a) really executed in last, a = 5, not a = 10 !! so you konw that defer has saved the value.
+    a = 10
+    fmt.Println("value of a before deferred function call", a)
+}
+```
+
+#### Stack of defers(order of multi defer: the first the last/LIFO)
+**When a function has multiple defer calls, they are added on to a stack and executed in Last In First Out (LIFO) order.**
+```go
+func main() {  
+    name := "HELLO"
+    for _, v := range []rune(name) {
+        defer fmt.Printf("%c", v)      // "OLLEH"
+    }
+}
+```
+
+#### usage example of defer(defer act just like finally of try-except-finally)
+```go
+//1. not defer:
+type rect struct {  
+    length int
+    width  int
+ }
+func (r rect) area(wg *sync.WaitGroup) {  
+    if r.length < 0 {
+        fmt.Printf("rect %v's length should be greater than zero\n", r)
+        wg.Done()
+        return
+    }
+    if r.width < 0 {
+        fmt.Printf("rect %v's width should be greater than zero\n", r)
+        wg.Done()
+        return
+    }
+    area := r.length * r.width
+    fmt.Printf("rect %v's area %d\n", r, area)
+    wg.Done()
+ }
+func main() {  
+    var wg sync.WaitGroup
+    r1 := rect{-67, 89}
+    r2 := rect{5, -67}
+    r3 := rect{8, 9}
+    rects := []rect{r1, r2, r3}
+           for _, v := range rects {
+               wg.Add(1)
+               go v.area(&wg)
+           }
+    wg.Wait()
+    fmt.Println("All go routines finished executing")
+ }
+
+//2. use defer in area():
+func (r rect) area(wg *sync.WaitGroup) {  
+    defer wg.Done()                             // code is more simple
+    if r.length < 0 {
+        fmt.Printf("rect %v's length should be greater than zero\n", r)
+        return
+        }
+    if r.width < 0 {
+        fmt.Printf("rect %v's width should be greater than zero\n", r)
+        return   
+    }
+    area := r.length * r.width
+    fmt.Printf("rect %v's area %d\n", r, area)
+ }
+```
+
+## Error Handling
+```
+Errors are represented using the built-in error type.
+If a function or method returns an error, then by convention it has to be the last value returned from the function.
+
+The idiomatic way of handling error in Go is to compare the returned error to nil !!
+A nil value indicates that no error has occurred and a non nil value indicates the presence of an error. 
+```
+
+```go
+func main() {  
+    f, err := os.Open("/test.txt")
+        if err != nil {                  //compare err with nil in go, SHIT...
+            fmt.Println(err)
+            return
+        }
+    fmt.Println(f.Name(), "opened successfully")
+ }
+```
+
+####  built-in Error type
+**error is an interface type with the following definition, so you can simply write your own error with an Error() function**
+```go
+type error interface {  
+    Error() string
+ }
+```
+
+#### get more error information from your error type by adding more fields
+```go
+//if you custome your error type like this, you can get more clear error info about the error:
+type PathError struct {  
+    Op   string
+    Path string
+    Err  error
+}
+func (e *PathError) Error() string { return e.Op + " " + e.Path + ": " + e.Err.Error()  }  
+```
+
+#### get more error information from your error type by adding more methods
+```go
+//if you custome your error type like this, you can get more clear error info about the error:
+type DNSError struct {  
+    ...
+}
+func (e *DNSError) Error() string {  
+    ...
+}
+func (e *DNSError) Timeout() bool {  
+    ... 
+}
+func (e *DNSError) Temporary() bool {  
+    ... 
+}
+```
+
+#### Directly compare error
+```go
+func main() {  
+    files, error := filepath.Glob("[")
+        if error != nil && error == filepath.ErrBadPattern {
+        fmt.Println(error)
+        return
+        }
+    fmt.Println("matched files", files)
+}"]") }
+```
+
+## NOTE: Do not ignore error, Never ever ignore an error in Go !!!!
+
+#### create our own custom errors which we can use in functions we create
+```go
+//Creating custom errors using the errors.New() function:
+func circleArea(radius float64) (float64, error) {  
+    if radius < 0 {
+        return 0, errors.New("Area calculation failed, radius is less than zero")   //so others who use this function need to check & handle this error 
+    }
+    return math.Pi * radius * radius, nil
+ }
+func main() {  
+    radius := -20.0
+    area, err := circleArea(radius)
+    if err != nil {
+        fmt.Println(err)
+        return
+    }
+    fmt.Printf("Area of circle %0.2f", area)
+ }
+
+
+//Providing more info about the error using your own customized XXError struct type:
+//you just need to write a struct implement the error interface with an Error() function, then add your own fileds/methods.
+type areaError struct {  
+    err    string
+    radius float64
+ }
+func (e *areaError) Error() string {  
+    return fmt.Sprintf("radius %0.2f: %s", e.radius, e.err)
+ }
+func circleArea(radius float64) (float64, error) {  
+    if radius < 0 {
+        return 0, &areaError{"radius is negative", radius}
+    }
+    return math.Pi * radius * radius, nil
+ }
+func main() {  
+    radius := -20.0
+    area, err := circleArea(radius)
+    if err != nil {
+        if err, ok := err.(*areaError); ok {
+            fmt.Printf("Radius %0.2f is less than zero", err.radius)
+            return
+        }
+        fmt.Println(err)
+        return
+    }
+    fmt.Printf("Area of rectangle1 %0.2f", area)
+}
+```
+
+#### Panic and Recover(panic-recover-defer just like try-except-finally)
+    The idiomatic way to handle abnormal conditions in a program in Go is using errors. Errors are sufficient for most of the abnormal conditions arising in the program.
+    But there are some situations where the program cannot simply continue executing after an abnormal situation. In this case we use panic to terminate the program. 
+                      
+    When a function encounters a panic, it's execution is stopped, any deferred functions are executed and then the control returns to it's caller.
+    This process continues until all functions of the current goroutine have returned till the top caller. then print the stack trace  message and terminates. 
+
+    you can regain control of a panicking program using recover.
+    panic-recover is similar to try-except-finally in python except that it's rarely used and more elegant and results in clean code. SHIT...
+
+    so When should we use panic but not return/check errors?
+    Only in cases where the program just cannot continue execution should a panic and recover mechanism be used.(程序出现严重的异常而不能继续运行时直接panic退出程序)
+
+```go
+//The argument whatever passed to panic() will be printed when the program terminates.
+func panic(interface{})   
+```
+```go
+func fullName(firstName *string, lastName *string) {  
+    if lastName == nil {
+        panic("runtime error: last name cannot be nil")       //just like raise an exception in python...
+    }
+    fmt.Printf("%s %s\n", *firstName, *lastName)
+ }
+func main() {  
+    firstName := "Elon"
+    fullName(&firstName, nil)                     //the program will terminate/exit here because of a panic
+    fmt.Println("returned normally from main")
+ }
+```
+
+#### defer executed before panic
+actually what panic() do is: return the panic to upper caller until main function then quit.       
+so, you can easily know that defer will be executed before panic() in a function.
+```go
+func fullName(firstName *string, lastName *string) {  
+    defer fmt.Println("deferred call in fullName")
+    if lastName == nil {
+        panic("runtime error: last name cannot be nil")
+    }
+    fmt.Printf("%s %s\n", *firstName, *lastName)
+}
+func main() {  
+    defer fmt.Println("deferred call in main")
+    firstName := "Elon"
+    fullName(&firstName, nil)
+    fmt.Println("returned normally from main")
+}
+
+//output:
+//  deferred call in fullName  
+//  deferred call in main  
+//  panic: runtime error: last name cannot be nil
+//  
+//  goroutine 1 [running]:  
+//  main.fullName(0x1042bf90, 0x0)  
+//      /tmp/sandbox060731990/main.go:13 +0x280
+//  main.main()  
+//      /tmp/sandbox060731990/main.go:22 +0xc0
+```
+
+#### Recover
+    Recover is useful only when called inside deferred functions. 
+    call recover inside a deferred function stops the panicking sequence by restoring normal execution and retrieves the error value passed to panic.
+    If recover is called outside the deferred function, it will not stop a panicking sequence.
+    
+```go
+func recoverName() {  
+    if r := recover(); r!= nil {                        // just like catch an exception
+        fmt.Println("recovered from ", r)            
+    }
+ }
+func fullName(firstName *string, lastName *string) {  
+    defer recoverName()
+    if lastName == nil {
+        panic("runtime error: last name cannot be nil")
+    }
+    fmt.Printf("%s %s\n", *firstName, *lastName)
+    fmt.Println("returned normally from fullName")
+ }
+func main() {  
+    defer fmt.Println("deferred call in main")
+    firstName := "Elon"
+    fullName(&firstName, nil)
+    fmt.Println("returned normally from main")
+}
+```
+
+#### Panic, Recover and Goroutines
+    Recover works only when it is called from the same goroutine. 
+    It's not possible to recover from a panic that has happened in a different goroutine.     
+
+```go
+func recovery() {  
+    if r := recover(); r != nil {
+        fmt.Println("recovered:", r)
+    }
+}
+func main() {  
+    defer recovery()
+    fmt.Println("Inside main goroutine")
+    go b()
+    time.Sleep(1 * time.Second)  // b goroutine start to run, then b goroutine panic, then program terminated/exited...
+    fmt.Println("main here")
+}
+func b() {  
+    fmt.Println("Inside B goroutine")
+    panic("oops! B goroutine panicked")
+}
+```
+
+#### Runtime panics
+    Panics can also be caused by runtime errors such as array out of bounds access.
+    This is equivalent to a call of the built-in function panic with an argument defined by interface type runtime.Error 
+
+#### Getting stack trace after recover
+**There is a way to print the stack trace using the PrintStack function of the Debug package after recover.**
+```go
+import (  
+    "fmt"
+    "runtime/debug"
+)
+func r() {  
+    if r := recover(); r != nil {
+        fmt.Println("Recovered", r)
+        debug.PrintStack()              // print stack when needed
+    }
+}
+```
+
+
+
+
+***congratulations, you have finished golang course***
 
 
 
@@ -2183,10 +2697,10 @@ func main() {
 
 
 
------------------------------------------------------------------------
+
+======================================================================
         thanks to: https://golangbot.com/learn-golang-series/
------------------------------------------------------------------------
-
+======================================================================
 [golangbot.com course](https://golangbot.com/learn-golang-series/)
 
 
