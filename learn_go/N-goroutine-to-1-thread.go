@@ -25,7 +25,7 @@ func haha() {
 
 
 func main() {
-	// --------------------------------------------------------------------------
+	// ---------------------------------------------------------------------------------------------------------
 	// there is only 1 thread in backfround here, so,
 	// how can 5 goroutines run in same time with only 1 thread ??
 
@@ -38,10 +38,12 @@ func main() {
 	//   1 thread can be used by multi goroutine,
 	//   actually multi goroutine each get little time span of thread(CPU) to use.
 
+	//在go里面,可以把 thread 理解成 CPU ,把 goroutine 理解成 process/thread，
+	//多个goroutine被调度轮询使用1个thread的CPU,就像操作系统里多个process/thread被调度轮询使用1个CPU一样. 实现并发效果!!
 	// is it right ??
 
 	runtime.GOMAXPROCS(1)
-	// --------------------------------------------------------------------------
+	// --------------------------------------------------------------------------------------------------------
 
 	fmt.Print("----main start")
 
