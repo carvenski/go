@@ -40,6 +40,7 @@ func main() {
 
 	//在go里面,可以把 thread 理解成 CPU ,把 goroutine 理解成 process/thread，
 	//多个goroutine被调度轮询使用1个thread的CPU,就像操作系统里多个process/thread被调度轮询使用1个CPU一样. 实现并发效果!!
+	//（都是采用 <分时间片> 的方法来实现的并发效果...）
 	// is it right ??
 
 	runtime.GOMAXPROCS(1)
