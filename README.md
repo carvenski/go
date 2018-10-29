@@ -1437,7 +1437,6 @@ func main() {
 }
 ```
 
-*TODO:*
 #### Implementing interfaces using pointer receivers vs value receivers  
 ###### (please review "Pointer receivers vs value receivers of Methods" first)
 *think of the difference here between them ??*
@@ -1461,24 +1460,28 @@ func (a *Address) Describe() {                          //implemented using poin
 }
 // ------------------------------------------------------------------------------------------------
 func main() {  
-    var d1 Describer         // if `var d1 Person` here, opposite result !!??
+    var d1 Describer        
+    
     p1 := Person{"Sam", 25}
-    d1 = p1                  //
+    d1 = p1                  
     d1.Describe()
-    p2 := Person{"James", 32}
-    d1 = &p2                 //
-    d1.Describe()
+    
+    //p2 := Person{"James", 32}
+    //d1 = &p2                 
+    //d1.Describe()
 
-    var d2 Describer         // if `var d1 Address` here, opposite result !!??
-    a1 := Address{"Washington", "USA"}    
-    d2 = a1                  //
-    d2.Describe()
+    var d2 Describer        
+    
+    //a1 := Address{"Washington", "USA"}    
+    //d2 = a1                  
+    //d2.Describe()
+    
     a2 := Address{"shanghai", "CN"}    
-    d2 = &a2                 //
+    d2 = &a2                 
     d2.Describe()
 }
 
-//Explantion: ????
+//Explantion: ??
 //This is because, the Describer interface is implemented using a Address Pointer receiver and 
 //we are trying to assign a1 which is a value type and it has not implemented the Describer interface. 
 //This will definitely surprise you since we learnt earlier that 
@@ -1488,6 +1491,12 @@ func main() {
 //The reason is that it is legal to call a pointer-valued method on anything that is already a pointer or whose address can be taken.
 //The concrete value stored in an interface is not addressable and hence 
 //it is not possible for the compiler to automatically take the address of a1 and hence this code fails.
+//就是说这种情况下,结构体变量和结构体变量指针的自动转换失效了,正常使用结构体时是可以自动互转的,但使用接口时不行.
+
+//其实很简单,接口在具体赋值的时候要和声明method时的reveiver对应起来！
+//method定义时用的是value receiver那就给接口赋值结构体变量,
+//method定义时用的是pointer receiver那就给接口赋值结构体变量的指针,
+//总之,对应起来,不用混用就行...否则就是自己找麻烦...
 // ------------------------------------------------------------------------------------------------
 ```
 
