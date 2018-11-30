@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	simplejson "github.com/bitly/go-simplejson"
 	"net/http"
 )
 
@@ -22,15 +23,20 @@ curl http://localhost:8000/s
 type Map map[string]interface{}
 type List []interface{}
 
+func checkErr(err error) {
+	if err != nil {
+		fmt.Println(err)
+	}
+}
+
 func receive_json(resp http.ResponseWriter, req *http.Request) {
 	var req_json map[string]interface{}
 
 	// 1.parse args in req json:
 	decoder := json.NewDecoder(req.Body)
 	err := decoder.Decode(&req_json)
-	if err != nil {
-		fmt.Println(err)
-	}
+	checkErr(err)
+	fmt.Println("[use type assertion]:")
 	fmt.Println("--> receive request json:", req_json)
 	fmt.Println("--> get name:", req_json["name"].(string))
 	fmt.Println("--> get money:", req_json["money"].(float64))
@@ -40,7 +46,13 @@ func receive_json(resp http.ResponseWriter, req *http.Request) {
 	fmt.Println("--> get map[k]:", req_json["map"].(map[string]interface{})["k"].(string))
 
 	// 2.use simplejson to parse req json:
-
+	js, err := simplejson.NewFromReader(req.Body)
+	checkErr(err)
+	fmt.Println("\n\n [use simplejson]:")
+	fmt.Println("--> receive request json:", js)
+	name, err := js.Get("name").String()
+	checkErr(err)
+	fmt.Println("--> get name:", name)
 }
 
 func send_json(resp http.ResponseWriter, req *http.Request) {
@@ -54,9 +66,7 @@ func send_json(resp http.ResponseWriter, req *http.Request) {
 	resp_json["map"] = map[string]string{"k": "v"}
 	fmt.Println("--> send response json:", resp_json)
 	resp_str, err := json.Marshal(resp_json)
-	if err != nil {
-		fmt.Println(err)
-	}
+	checkErr(err)
 	resp.Header().Set("Content-Type", "application/json")
 	resp.Write(resp_str)
 }
