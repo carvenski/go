@@ -1,7 +1,7 @@
 ## learn golang
 ```
-go的设计参考了C+Python.
-对比学习:go可以对比思考python的很多东西,相通的编程概念/思路等,有很多收获.
+可以发现go的设计参考了C+Python等.
+对比学习:go可以对比思考python/java的很多东西,相通的编程概念/思路等,有很多收获.
 ```
 
 [go教程英文原版](https://golangbot.com/learn-golang-series/)     
@@ -27,8 +27,10 @@ go的设计参考了C+Python.
 ```
 //your project code structure is like this:
     GoProject/
+             pkg/
+	        hello.a
              bin/  
-	            hello
+	        hello
              src/
                 hello/
                      helloworld.go
@@ -40,9 +42,13 @@ import "fmt"
 
 func main() {  
     fmt.Println("Hello World")
-	}
+}
 
-// then use `go run/build helloworld.go` or `go install hello` to run it.
+// use `go run/build helloworld.go` to run it.
+
+//放置go项目路径的2种做法：
+// 1.把GoProject项目根目录加入GOPATH,要求该目录结构里必须有src/hello/,这样的目录结构才能被go命令认识,然后hello包也就能被搜索到.
+// 2.吧hello直接放在GOPATH的src下面,这样hello包也自然能被go命令搜索到了.
 ```
 
 #### Variable
