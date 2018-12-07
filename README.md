@@ -1,7 +1,7 @@
 ## learn golang
 ```
-go和python真的很像... 显然go的设计就是参考了C+Python...
-对比学习:go可以促使对比思考python的很多东西,很多相通的编程概念/思路等,有很多收获...
+go的设计参考了C+Python.
+对比学习:go可以对比思考python的很多东西,相通的编程概念/思路等,有很多收获.
 ```
 
 [go教程英文原版](https://golangbot.com/learn-golang-series/)     
