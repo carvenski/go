@@ -52,10 +52,10 @@ func main() {
 ```
 
 #### Variable
-`var name type` is the syntax to declare a single variable.
-`var name type = initialvalue` is the syntax to declare a variable with 
-
 ```go
+`var name type` is the syntax to declare a single variable.    
+`var name type = initialvalue` is the syntax to declare a variable with     
+
  var age int
  age = 100
  
