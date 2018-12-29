@@ -42,7 +42,7 @@ func handler(conn net.Conn) {
 	tmp := make([]byte, 10)      // tmp buffer, capcity=10 bytes
 	for {
 		log.Println("-> waiting for conn.Read()...")
-		n, err := conn.Read(tmp)
+		n, err := conn.Read(tmp) // Read will block here until data ready(client have sended data).
 		if err != nil {
 			if err != io.EOF {
 				log.Printf("unexpected read error: %s", err)
