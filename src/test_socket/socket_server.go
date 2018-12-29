@@ -71,11 +71,14 @@ func handler(conn net.Conn) {
 		}
 		log.Printf("got %d bytes:", n)
 		log.Println(tmp)
-		log.Printf("(bytes to string: %s)", tmp)
+		log.Printf("bytes to string:")
+		log.Printf("%s", tmp)
 		buf = append(buf, tmp[:n]...)
 	}
 	log.Println("end...total bytes is:")
 	log.Println(buf)
+	log.Println("end...total bytes to string is:")
+	log.Printf("%s", buf)
 
 	daytime := time.Now().String()
 	conn.Write([]byte("i have send you the time: " + daytime))
