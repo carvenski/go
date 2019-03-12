@@ -41,9 +41,10 @@ func cpu_func() {
 }
 
 func io_func() {
-	// 看书上说:网络请求/系统调用等io操作,go会使用一个线程对应一个协程.和python一样. 1:1 但实测并非如此...??
+	// 看书上说:系统调用等操作,go的一个协程会占用一个线程.这里测试并没有测到这个结果? 是测试用例写的不对还是因为top看不到内核态线程?
 	fmt.Println("1 io func start")
 
+	/* 发起http网络请求
 	resp, err := http.Get("http://google.com")
 	if err != nil {
 		fmt.Println(err)
@@ -55,22 +56,28 @@ func io_func() {
 		return
 	}
 	fmt.Println(string(body)[50:100])
-
-	/*
-		c := "curl --connect-timeout 60 http://google.com"
-		cmd := exec.Command("bash", "-c", c)
-		out, err := cmd.Output()
-		if err != nil {
-			fmt.Println(err)
-		}
-		fmt.Println(out)
 	*/
+
+	//调用shell
+	c := "curl --connect-timeout 60 http://google.com"
+	cmd := exec.Command("bash", "-c", c)
+	out, err := cmd.Output()
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(out)
 
 	fmt.Println("1 io func end")
 }
 
-// 测试结果不是1:1,仍然是M:N的?? go一直是起了10个左右线程?? 网络请求的io型的go也并没有线性增加线程数量??还是因为go起了内核态线程top看不到?
-// 这么看的话,go协程是真的M:N到线程了!? 即使是本例中的1000个网络请求这样的操作,也只使用了10个线程...擦,真的比python协程好??
+// 无论go还是python,http网络请求类的io操作都是可以做到M:1的!! 而http网络请求类操作就是最常见的协程应用场景.
 
-// 或许,无论怎样,go的协程之于python的协程,最大的好处至少是: go团队替你打包了所有底层调度映射细节操作,你只需要关心产品的并发业务开发即可！
-// 至少在并发程序编写这块,go的确大大的提高了开发效率,提高了生产效率,这就是它的优点.
+// 测试结果不是1:1,仍然是M:N的.go一直是起了10个左右线程.http网络请求的io操作go并没有线性增加线程数量.这点python也做到了,tornado/gevent的效果
+// 的确,go协程是真的M:N到线程了.本例中的1000个http网络请求这样的操作,也只使用了10个线程...
+
+// 无论怎样,go的协程之于python的协程,最大的好处至少是: go团队替你打包了所有底层调度映射细节操作,你只需要关心产品的并发业务开发即可！
+// 至少在并发程序编写这块,go的确大大的提高了开发效率,提高了生产效率,这就是它的优点.在并发需求的程序中应当优先采用.
+
+// 实际上,python的io型也不是1:1,也可以是M:1 => 在tornado和gevent中,N个发起http网络请求的协程也是只使用了一个单线程的.只是有些比如访问mysql的
+// 操作,本质上是http访问,但是却没有人使用AsyncHttpClient来为mysql写这个异步client(需要按照mysql协议写http数据交互解析这些事),
+// 需要自己写.这个就不方便了...效率低,造轮子.而go里面这些都有了,拿来就用,所以说生产效率高.
