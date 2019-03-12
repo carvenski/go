@@ -2,8 +2,10 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
+	"net/http"
 	"os"
-	"os/exec"
+	//"os/exec"
 	"runtime"
 	"time"
 )
@@ -22,7 +24,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	for i := 0; i < 100; i++ {
+	for i := 0; i < 1000; i++ {
 		go f()
 	}
 
@@ -42,15 +44,30 @@ func io_func() {
 	// 看书上说:网络请求/系统调用等io操作,go会使用一个线程对应一个协程.和python一样. 1:1 但实测并非如此...??
 	fmt.Println("1 io func start")
 
-	c := "curl --connect-timeout 60 http://google.com"
-	cmd := exec.Command("bash", "-c", c)
-	out, err := cmd.Output()
+	resp, err := http.Get("http://google.com")
 	if err != nil {
 		fmt.Println(err)
+		return
 	}
-	fmt.Println(out)
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println(string(body)[50:100])
+
+	/*
+		c := "curl --connect-timeout 60 http://google.com"
+		cmd := exec.Command("bash", "-c", c)
+		out, err := cmd.Output()
+		if err != nil {
+			fmt.Println(err)
+		}
+		fmt.Println(out)
+	*/
 
 	fmt.Println("1 io func end")
 }
 
-// 测试结果不是1:1,仍然是M:N的?? go一直是起了10个左右线程?? io型的go也并没有线性增加线程数量??
+// 测试结果不是1:1,仍然是M:N的?? go一直是起了10个左右线程?? 网络请求的io型的go也并没有线性增加线程数量??
+// 这么看的话,go协程是真的M:N到线程了!? 即使是本例中的1000个网络请求这样的操作,也只使用了10个线程...擦,真的比python协程好??
