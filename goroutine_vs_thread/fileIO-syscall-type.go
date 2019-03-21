@@ -9,7 +9,7 @@ import (
 func main() {
 	fmt.Println("main start...")
 
-	for i := 0; i < 500; i++ {
+	for i := 0; i < 100; i++ {
 		go io_func()
 	}
 
