@@ -11,6 +11,14 @@ http网络请求的io操作go并没有线性增加线程数量.这点python也�
 ```
 
 ```
+系统启动时，会启动一个独立的后台线程（不在Goroutine的调度线程池里），启动netpoll的轮询。
+当有Goroutine发起网络请求时，网络库会将fd（文件描述符）和pollDesc（用于描述netpoll的结构体，包含因为读/写这个fd而阻塞的Goroutine）关联起来，
+然后调用runtime.gopark方法，挂起当前的Goroutine。
+当后台的netpoll轮询获取到epoll（linux环境下）的event，会将event中的pollDesc取出来，找到关联的阻塞Goroutine，并进行恢复。
+可以看出和python的协程+epoll+socket那一套是一样的原理,go全都封装好了,让你用起来很简单.
+```
+
+```
 无论怎样,go的协程之于python的协程,最大的好处至少是: 
 从开发写代码来说,go替你打包了调度器的协程与线程映射细节,你只需要关心产品的并发业务逻辑开发即可！
 至少在并发程序编写这块,go的确大大的提高了开发效率,提高了生产效率,这就是它的优点.所以在并发需求的程序中应当优先采用.
