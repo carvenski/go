@@ -8,28 +8,24 @@ import (
 
 func haha() {
 	fmt.Print("----sleeping")
-	time.Sleep(5 * time.Second)
+	time.Sleep(5 * time.Second)             //这里的time.sleep()显然不是同步阻塞版的,go内部有处理了.
 	fmt.Print("----sleeping end")
 
 }
 
 
 //-----------------------------------------------------------------------------------------------------------------
-//可以看到, 5个goroutine 的却只映射/使用了 1个thread, 但是运行效果的却是并发的!!这个就真牛逼了(go实现了真的多协程单线程)...  
-//而在python中的话,是每一个coroutine都要使用一个thread来跑其同步阻塞的任务的(本质上还是背后的多线程)...                       
-//*****************************************
-//  在go里面  goroutine : thread == N ：1 (或者可选 M ：N)
-//  在python里面 coroutine : thread == 1 ：1
-//*****************************************
+//可以看到, 5个goroutine 的却使用了 1个thread, 但是运行效果的却是并发的.
+//在python,一个同步阻塞的coroutine要用一个thread来跑其同步阻塞的任务的(本质上是背后的多线程)...
+//***********************************************************************
+// 无论python和go:
+//   cpu型的和网络io型的操作,都是可以做到N:1的!
+//   但在少数3种情况下的操作(如系统调用等)仍然是要1:1的,底层都是要占用1个线程的.
+//***********************************************************************
 //------------------------------------------------------------------------------------------------------------------
 
 
 func main() {
-	// ---------------------------------------------------------------------------------------------------------
-	// there is only 1 thread in backfround here, so,
-	// how can 5 goroutines run in same time with only 1 thread ??
-
-	//my understanding:
 	// we know that:
 	//   1 CPU can be used by multi process/thread,
 	//   actually multi process/thread each get little time span of CPU to use.
@@ -39,12 +35,10 @@ func main() {
 	//   actually multi goroutine each get little time span of thread(CPU) to use.
 
 	//在go里面,可以把 thread 理解成 CPU ,把 goroutine 理解成 process/thread，
-	//多个goroutine被调度轮询使用1个thread的CPU,就像操作系统里多个process/thread被调度轮询使用1个CPU一样. 实现并发效果!!
+	//多个goroutine被调度轮询使用1个thread的CPU,就像操作系统里多个process/thread被调度轮询使用1个CPU一样. 实现并发效果.
 	//（都是采用 <分时间片> 的方法来实现的并发效果...）
-	// is it right ??
 
 	runtime.GOMAXPROCS(1)
-	// --------------------------------------------------------------------------------------------------------
 
 	fmt.Print("----main start")
 
