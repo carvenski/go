@@ -23,7 +23,7 @@ func modify_map(x map[string]int)  {
 
 type Test struct{
 	p int		
-	q int            //struct中的成员全是 值类型 的情况
+	q int              //struct中的成员全是 值类型 的情况
 }
 
 func modify_struct(x Test)  {
@@ -85,10 +85,10 @@ func main()  {
 	struct_b := struct_a
 	struct_b.p = 100
 	fmt.Println("struct b=", struct_b)
-	fmt.Println("struct a=", struct_a)      // struct的类型依据其成员的类型而定: 
-	                                        //    若成员是值类型的,struct就是 值类型 的
-	                                        //    若成员是引用类型的,struct就是 引用类型 的  
-	                                        // 所以说,struct即可以当成 值类型,也可以当成 引用类型,关键要看它里面的成员是什么类型的!
+	fmt.Println("struct a=", struct_a)      // struct在被传递时,struct的成员的传递类型保持不变:
+	                                        //    若成员是值类型的,该成员就会被 拷贝值
+	                                        //    若成员是引用类型的,该成员就会被 拷贝引用
+	                                        // 所以说,struct即可以理解为值类型,也可以理解为引用类型,关键要看它里面的成员是什么类型的!
 	fmt.Println("--> test array in func")
 	fmt.Println("array a=", array_a)
 	modify_array(array_a)
@@ -117,10 +117,10 @@ func main()  {
 	struct_bb.i[0] = 50000
 	struct_bb.j["salary"] = 50000
 	fmt.Println("struct b=", struct_bb)
-	fmt.Println("struct a=", struct_aa)      // struct的类型依据其成员的类型而定: 
-	                                         //    若成员是值类型的,struct就是 值类型 的
-	                                         //    若成员是引用类型的,struct就是 引用类型 的  
-	                                         // 所以说,struct即可以当成 值类型,也可以当成 引用类型,关键要看它里面的成员是什么类型的!
+	fmt.Println("struct a=", struct_aa)     // struct在被传递时,struct的成员的传递类型保持不变:
+	                                        //    若成员是值类型的,该成员就会被 拷贝值
+	                                        //    若成员是引用类型的,该成员就会被 拷贝引用
+	                                        // 所以说,struct即可以理解为值类型,也可以理解为引用类型,关键要看它里面的成员是什么类型的!
 
 	fmt.Println("--> test struct 2 in func")
 	fmt.Println("struct a=", struct_aa)
