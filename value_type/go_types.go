@@ -1,5 +1,4 @@
-
-/////////////////////////////////////////array + list + map + struct 的传递类型///////////////////////////////////////////
+// array + list + map + struct 的传递类型
 package main
 
 import (
@@ -23,7 +22,7 @@ func modify_map(x map[string]int)  {
 
 type Test struct{
 	p int		
-	q int              //struct中的成员全是 值类型 的情况
+	q int            //struct中的成员全是 值类型 的情况
 }
 
 func modify_struct(x Test)  {
@@ -39,6 +38,14 @@ type Test2 struct{
 }
 
 func modify_struct_2(x Test2)  {
+	x.q = 35000
+	x.i[0] = 35000
+	x.j["salary"] = 35000
+	fmt.Println("struct in func: ", x)
+}
+
+//这里使用struct指针了
+func modify_struct_3(x *Test2)  {
 	x.q = 35000
 	x.i[0] = 35000
 	x.j["salary"] = 35000
@@ -88,7 +95,8 @@ func main()  {
 	fmt.Println("struct a=", struct_a)      // struct在被传递时,struct的成员的传递类型保持不变:
 	                                        //    若成员是值类型的,该成员就会被 拷贝值
 	                                        //    若成员是引用类型的,该成员就会被 拷贝引用
-	                                        // 所以说,struct即可以理解为值类型,也可以理解为引用类型,关键要看它里面的成员是什么类型的!
+						// 所以说,struct即可以理解为值类型,也可以理解为引用类型,关键要看它里面的成员是什么类型的!
+						// 所以: 要把struct当成class来用,就要使用struct指针来使其成为真正的引用类型!
 	fmt.Println("--> test array in func")
 	fmt.Println("array a=", array_a)
 	modify_array(array_a)
@@ -121,13 +129,32 @@ func main()  {
 	                                        //    若成员是值类型的,该成员就会被 拷贝值
 	                                        //    若成员是引用类型的,该成员就会被 拷贝引用
 	                                        // 所以说,struct即可以理解为值类型,也可以理解为引用类型,关键要看它里面的成员是什么类型的!
-
+						// 所以: 要把struct当成class来用,就要使用struct指针来使其成为真正的引用类型!
 	fmt.Println("--> test struct 2 in func")
 	fmt.Println("struct a=", struct_aa)
 	modify_struct_2(struct_aa)	
 	fmt.Println("struct a=", struct_aa)
+
+
+
+	fmt.Println("--> test struct 3")
+	struct_aaa := &Test2{1, 2, []int{1,2,3}, map[string]int{"name": 0, "age": 1} }
+	fmt.Println("struct a=", struct_aaa)
+	struct_bbb := struct_aaa
+	struct_bbb.p = 100
+	struct_bbb.i[0] = 50000
+	struct_bbb.j["salary"] = 50000
+	fmt.Println("struct b=", struct_bbb)
+	fmt.Println("struct a=", struct_aaa)      // 给struct使用了指针后,当然就是引用类型的了
+						  // 所以在go中,struct的使用多用指针!使其成为真正的引用类型,像class一样.
+	fmt.Println("--> test struct 3 in func")
+	fmt.Println("struct a=", struct_aaa)
+	modify_struct_3(struct_aaa)	
+	fmt.Println("struct a=", struct_aaa)
+
 	
 }
+
 
 /* 输出
 --> test array
@@ -143,8 +170,8 @@ list a= [1 2 3]
 list b= [100 2 3]
 list a= [100 2 3]
 --> test map
-map a= map[x:1 y:2]
-map b= map[z:3 x:1 y:2]
+map a= map[y:2 x:1]
+map b= map[x:1 y:2 z:3]
 map a= map[x:1 y:2 z:3]
 --> test struct 1
 struct a= {1 2}
@@ -161,24 +188,28 @@ list a= [100 10000 3]
 --> test map in func
 map a= map[x:1 y:2 z:3]
 map in func:  map[y:2 z:3 m:10000 x:1]
-map a= map[z:3 m:10000 x:1 y:2]
+map a= map[x:1 y:2 z:3 m:10000]
 --> test struct 1 in func
 struct a= {1 2}
 struct in func:  {1 10000}
 struct a= {1 2}
 --> test struct 2
-struct a= {1 2 [1 2 3] map[age:1 name:0]}
+struct a= {1 2 [1 2 3] map[name:0 age:1]}
 struct b= {100 2 [50000 2 3] map[name:0 age:1 salary:50000]}
 struct a= {1 2 [50000 2 3] map[name:0 age:1 salary:50000]}
 --> test struct 2 in func
-struct a= {1 2 [50000 2 3] map[age:1 salary:50000 name:0]}
-struct in func:  {1 35000 [35000 2 3] map[name:0 age:1 salary:35000]}
+struct a= {1 2 [50000 2 3] map[name:0 age:1 salary:50000]}
+struct in func:  {1 35000 [35000 2 3] map[age:1 salary:35000 name:0]}
 struct a= {1 2 [35000 2 3] map[name:0 age:1 salary:35000]}
+--> test struct 3
+struct a= &{1 2 [1 2 3] map[name:0 age:1]}
+struct b= &{100 2 [50000 2 3] map[name:0 age:1 salary:50000]}
+struct a= &{100 2 [50000 2 3] map[salary:50000 name:0 age:1]}
+--> test struct 3 in func
+struct a= &{100 2 [50000 2 3] map[age:1 salary:50000 name:0]}
+struct in func:  &{100 35000 [35000 2 3] map[salary:35000 name:0 age:1]}
+struct a= &{100 35000 [35000 2 3] map[name:0 age:1 salary:35000]}
 */
-
-
-
-
 
 
 
