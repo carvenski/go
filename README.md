@@ -1,6 +1,6 @@
 ## learn golang
 ```
-go最大的好处是让写高并发程序变得如此的简单...
+go最大的好处是 1.语法简单而实用 2.让写高并发程序变得如此的简单.
 什么协程,线程,底层调度映射等等这些造轮子的事,go都替你写好了(就是twisted/tornado/gevent干的事),
 然后你只需要关注你的产品本身就好了,并发程序的开发效率大大的提高了.
 一个新时代的带来了生产效率大大的提升的新的生产工具.
@@ -31,9 +31,9 @@ Lets Go !
 //your project code structure is like this:
     GoProject/
              pkg/
-	        hello.a
+	            hello.a
              bin/  
-	        hello
+	            hello
              src/
                 hello/
                      helloworld.go
