@@ -6,7 +6,7 @@
 
 状态(state)：Actor中的状态指的是Actor对象的变量信息，状态由Actor自己管理，避免了并发环境下的锁和内存原子性等问题
 行为(Behavior)：行为指定的是Actor中计算逻辑，通过Actor接收到消息来改变Actor的状态
-邮箱(mailBox)：邮箱是Actor和Actor之间的通信桥梁，邮箱内部通过FIFO消息队列来存储发送方Actor消息，接受方Actor从邮箱队列中获取消息
+邮箱(mailBox)：邮箱是Actor和Actor之间的通信桥梁,邮箱内部通过消息队列来存储发送方Actor消息,接受方Actor从邮箱队列中获取消息
 ```
 
 ### Actor的基础就是消息传递
