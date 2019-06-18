@@ -22,5 +22,6 @@ govendor sync -v (这句就相当于pip install -r requirements.txt)
 # 难道说go get不会下载依赖包?
 例 govendor fetch -v github.com/gin-gonic/gin/...@v1.2
 
+# go项目尽量使用govendor,类似pip的功能,挺好用的
 
 ```
