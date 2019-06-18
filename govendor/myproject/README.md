@@ -15,7 +15,12 @@ govendor add +external (或使用缩写： govendor add +e)
 
 # 其他人有了vendor.json文件后,则可以本地拉取所有包到vendor
 (这样就不需要把vendor里面的包文件也上传了,当然你直接上传vendor也行)
-govendor sync
+govendor sync -v (这句就相当于pip install -r requirements.txt)
+
+# govendor fetch类似于go get,用来下载新的包,但是它会把新包下载到本项目的vendor目录
+# 尽量使用govendor fetch -v来安装依赖的包，因为它不但可以下载自身的包，还可以下载依赖包
+# 难道说go get不会下载依赖包?
+例 govendor fetch -v github.com/gin-gonic/gin/...@v1.2
 
 
 ```
