@@ -23,6 +23,9 @@ govendor sync -v (这句就相当于pip install -r requirements.txt)
 govendor fetch -v github.com/gin-gonic/gin
 govendor fetch -v github.com/gin-gonic/gin@v1.2
 
-# go项目尽量使用govendor,类似pip的功能,挺好用的
+---------------------------------------------------
+# 以后go项目尽量使用govendor,相当于python的pip,很好用
+---------------------------------------------------
+
 
 ```
