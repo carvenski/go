@@ -1,5 +1,7 @@
 ### gRPC由google开发,是一款基于ProtoBuffer的跨语言远程过程调用(RPC)系统,类似thrift框架.
 
+##### gRPC参考https://grpc.io/docs/quickstart/go/
+
 ##### gRPC介绍
 ```
 基于HTTP/2 
