@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"context"
+	"time"
 )
 
 /*
@@ -17,13 +18,34 @@ Context包:
 而且如果请求超时或者被取消后,所有的goroutine都应该马上退出并且释放相关的资源,这种情况也需要用Context来为我们取消掉所有goroutine
 */
 func main() {
-	log.Println("test context")
-
-
-
-
+	log.Println("main start")
+	// pass sub context to each goroutine, then call cancel() in main to cancel all goroutines
+	ctx, cancel := context.WithCancel(context.Background())
+	for i := 0; i < 10; i++ {
+		go test(ctx, i)
+	}
+	time.Sleep(3*time.Second)
+	cancel()
+	log.Println("\n\n====> cancel() already called in main !\n")
+	time.Sleep(2*time.Second)
+	log.Println("main stop")
 }
 
+func test(ctx context.Context, n int) {
+	log.Printf("goroutine %d start...", n)
+	loop:
+		for i := 0; i < 10; i++ {
+			select {
+				// <-ctx.Done() will success after cancel() called
+			    case <-ctx.Done():
+			    	log.Printf("goroutine %d stop by cancel()...", n)
+			    	break loop
+			    default:			
+					time.Sleep(1*time.Second)
+					log.Printf("goroutine %d print %d...", n, i)
+			}
+		}
+}
 
 
 
