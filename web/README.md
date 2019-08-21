@@ -18,4 +18,5 @@ If you need smashing performance, get yourself some Gin.(https://github.com/gin-
 
 5.Revel is a high productivity, full-stack web framework for the Go language.(http://revel.github.io)
 
+### just use beego cause it like django...
 
