@@ -18,6 +18,8 @@ perm: Log file permission
 package log
 
 import (
+    "os"
+    "path/filepath"
 	"github.com/astaxie/beego/logs"
 )
 
@@ -25,11 +27,13 @@ import (
 var Logger *logs.BeeLogger
 
 func init() {
-	// log setting
 	Logger = logs.NewLogger()
 	// Log.Async()
 	Logger.EnableFuncCallDepth(true)
-	// mkdir logs && chmod 755 -R logs
+	// mkdir logs/ && chmod 755 -R logs/
+    err := os.MkdirAll(filepath.Dir("logs/test.log"), 0755)
+    if err != nil { panic("create logs/ dir error !") }
+    // log setting
 	Logger.SetLogger(logs.AdapterFile,
 		`{"filename": "logs/test.log",
 		  "level": 7,
