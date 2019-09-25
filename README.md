@@ -15,6 +15,9 @@ Lets Go !
 [国外牛人的go技术博客](https://www.goinggo.net/2014/01/concurrency-goroutines-and-gomaxprocs.html)     
 [深入go](https://tiancaiamao.gitbooks.io/go-internals/content/zh/01.1.html)     
 
+[go标准库的使用](https://books.studygolang.com/The-Golang-Standard-Library-by-Example/chapter01/01.1.html)     
+
+
 
 #### installion
 	https://golang.org/dl/	
