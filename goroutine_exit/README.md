@@ -1,4 +1,4 @@
-#### 多个goroutine的退出控制
+## 多个goroutine的退出控制
 
 ##### 我们通过select和default分支可以很容易实现一个Goroutine的退出控制:
 ```go
