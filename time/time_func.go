@@ -13,8 +13,7 @@ func Duration(invocation time.Time, name string) {
 }
 
 func BigIntFactorial(x *big.Int) *big.Int {
-	// Arguments to a defer statement is immediately evaluated and stored.
-	// The deferred function receives the pre-evaluated values when its invoked.
+	// 使用defer给函数加上计时
 	defer Duration(time.Now(), "IntFactorial")
 
 	y := big.NewInt(1)
