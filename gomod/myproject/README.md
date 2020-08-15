@@ -1,12 +1,15 @@
-#### go mod使用
+## go mod使用姿势
 ```
 require: go version > go1.11
 
 示例:
-cd myproject/
-go mod init myproject  //初始化生成go.mod文件
-go mod tidy            //拉取缺少的模块，移除不用的模块
+go mod init myproject  //新建myproject项目,并生成go.mod文件
+go mod download/tidy   //下载依赖库,放到GOPATH/pkg/mod下
+go mod graph           //打印全部依赖库
+go run/build main.go   //默认会自动拉取项目依赖后再运行
+go list -m -versions 包名 //列出包可下载的所有版本
 
-go run/build main.go   //此时项目依赖已经全部下载好了
+修改依赖库的版本:
+直接修改go.mod文件中对应库的版本号即可.
 ```
 

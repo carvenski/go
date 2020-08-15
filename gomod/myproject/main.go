@@ -3,8 +3,9 @@ package main
 import (
     "log"
     "net/http"
-
-    "github.com/labstack/echo"
+                                   //关于go mod支持包的不同版本的写法: /vN后缀
+    //"github.com/labstack/echo"   //echo包的这个路径只支持到v3.3.10
+    "github.com/labstack/echo/v4"  //加了v4后缀的这个路径才能支持v4.0.0以上的版本 (算个go mod的坑吧)
 )
 
 func main(){
