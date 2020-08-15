@@ -13,3 +13,11 @@ go list -m -versions 包名 //列出包可下载的所有版本
 直接修改go.mod文件中对应库的版本号即可.
 ```
 
+## 关于/vN后缀
+```
+go mod支持包的不同版本的写法: /vN后缀
+以echo包举例:
+"github.com/labstack/echo"     这个路径只支持到v3.3.10
+"github.com/labstack/echo/v4"  加了v4后缀的这个路径才能支持v4.0.0以上的版本 
+这算个go mod的坑吧...
+```
