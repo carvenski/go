@@ -3,6 +3,8 @@
 ```
 安装 go get -u -v github.com/kardianos/govendor
 
+# 项目需要放在GOPATH/src下面
+
 # 进入到项目目录
 cd /home/gopath/src/mytool
 
