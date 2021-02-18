@@ -1,14 +1,14 @@
 ### windows下编译成linux的可执行文件
 ```
-设置3个环境变量即可(注意几个环境变量后面不能有空格):
-SET CGO_ENABLED=0
-SET GOOS=linux
-SET GOARCH=amd64
-
-然后直接编译:
-go build main.go
+CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build main.go
 ```
 
+### Linux 下编译 Mac 和 Windows 64位可执行程序
+```
+CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build main.go
+CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build main.go
+```
 
+*所以其实就是修改 GOOS 这个变量指向需要编译的平台即可。*
 
 
