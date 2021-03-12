@@ -1,5 +1,5 @@
 package app
 
-func CheckError(){
+func CheckError(e error) {
 
 }

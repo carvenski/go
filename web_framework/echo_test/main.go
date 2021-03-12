@@ -3,7 +3,9 @@ package main
 import (
 	"myapp/app"
 
-	"github.com/labstack/echo/v4" //使用echo v4版本
+	//使用echo v4版本
+	//参考https://echo.labstack.com/guide/
+	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
 
