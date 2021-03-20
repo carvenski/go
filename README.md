@@ -1,10 +1,11 @@
 ## learn golang
 ```
-go最大的好处是 1.语法简单而实用 2.让写高并发程序变得如此的简单.
-什么协程,线程,底层调度映射等等这些造轮子的事,go都替你写好了(就是twisted/tornado/gevent干的事),
+go最大的好处是 1.语法非常的简单而实用 2.简化了高并发程序/协程的写法
+什么协程,线程,底层调度映射等这些造轮子的事,go都替你写好了(就是twisted/tornado/gevent框架干的事),
 然后你只需要关注你的产品本身就好了,并发程序的开发效率大大的提高了.
-一个新时代的带来了生产效率大大的提升的新的生产工具.
-Lets Go !
+一个新时代的带来了生产效率很大的提升的新的生产工具. Lets Go !
+go的runtime里自带了协程调度器和gc,所以性能上要比rust多些消耗,
+但是好处是性能和开发效率取得了更好的平衡，大牛写好了轮子给你用。
 ```
 [go高级进阶](https://chai2010.cn/advanced-go-programming-book/ch1-basic/ch1-08-ext.html)     
 [go教程英文原版](https://golangbot.com/learn-golang-series/)     
@@ -2750,3 +2751,4 @@ func r() {
 
 ## END
 
+迁移至gitee at 2021-3-20, fuck CPIC network.
