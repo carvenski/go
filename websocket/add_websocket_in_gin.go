@@ -42,11 +42,11 @@ func wshandler(c *gin.Context) {
     }
 
     for {
-        t, msg, err := conn.ReadMessage()
+        _, msg, err := conn.ReadMessage()
         if err != nil {
             break
         }
-        conn.WriteMessage(t, []byte(string(msg) + " from ws server."))
+        conn.WriteMessage(websocket.BinaryMessage, []byte(string(msg) + " from ws server."))
     }
 }
 
@@ -60,7 +60,7 @@ func wsclienthandler(c *gin.Context) {
     }
     defer conn.Close()
 
-    err = conn.WriteMessage(websocket.TextMessage, []byte("Hello from GolangDocs!"))
+    err = conn.WriteMessage(websocket.BinaryMessage, []byte("Hello from GolangDocs!"))
     if err != nil {
         fmt.Println("Error during writing to websocket:", err)
         return
