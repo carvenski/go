@@ -4,6 +4,7 @@ import (
     "fmt"
     "github.com/gin-gonic/gin"
     "github.com/gorilla/websocket"
+    "encoding/json"
 )
 
 func main() {
@@ -26,6 +27,11 @@ func main() {
     r.Run("0.0.0.0:8080")
 }
 
+type Msg struct {
+    A int
+    B string
+}
+
 var wsupgrader = websocket.Upgrader{
     ReadBufferSize:  1024,
     WriteBufferSize: 1024,
@@ -46,6 +52,13 @@ func wshandler(c *gin.Context) {
         if err != nil {
             break
         }
+        var m Msg
+        err = json.Unmarshal(msg, &m)
+        if err != nil {
+            fmt.Println("Json Unmarshal fail: %+v", err)
+        } else {
+            fmt.Println("Json Unmarshal ok: %+v", m)
+        }
         conn.WriteMessage(websocket.BinaryMessage, []byte(string(msg) + " from ws server."))
     }
 }
@@ -60,12 +73,13 @@ func wsclienthandler(c *gin.Context) {
     }
     defer conn.Close()
 
-    err = conn.WriteMessage(websocket.BinaryMessage, []byte("Hello from GolangDocs!"))
+    msg, _ := json.Marshal(Msg{1, "b"})
+    err = conn.WriteMessage(websocket.BinaryMessage, msg)
     if err != nil {
         fmt.Println("Error during writing to websocket:", err)
         return
     }
-    _, msg, err := conn.ReadMessage()
+    _, msg, err = conn.ReadMessage()
     if err != nil {
         fmt.Println("Error in receive:", err)
         return
