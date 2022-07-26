@@ -31,6 +31,7 @@ var wsupgrader = websocket.Upgrader{
     WriteBufferSize: 1024,
 }
 
+// websocket协议也是可以基于http协议实现的，所以可以直接接入到http handler里面。
 func wshandler(c *gin.Context) {
     w := c.Writer
     r := c.Request
@@ -51,6 +52,8 @@ func wshandler(c *gin.Context) {
 
 func wsclienthandler(c *gin.Context) {
     wsUrl := "ws://localhost:8080" + "/ws"
+    
+    // websocket client端的使用类似socket client    
     conn, _, err := websocket.DefaultDialer.Dial(wsUrl, nil)
     if err != nil {
         fmt.Println("Error connecting to Websocket Server:", err)
