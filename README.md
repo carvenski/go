@@ -1,12 +1,19 @@
 ## learn golang
 ```
-go最大的好处是 1.语法非常的简单而实用 2.简化了高并发程序/协程的写法
-什么协程,线程,底层调度映射等这些造轮子的事,go都替你写好了(就是twisted/tornado/gevent框架干的事),
-然后你只需要关注你的产品本身就好了,并发程序的开发效率大大的提高了.
-一个新时代的带来了生产效率很大的提升的新的生产工具. Lets Go !
+go的优点:
+1.语法非常的简单而实用,大道至简,少即是多.
+2.简化了高并发程序/协程的写法.
+
+什么协程/线程/epoll等这些造轮子的事,go内部都替你封装好了
+其实就是twisted/tornado/gevent这些框架干的相同的事
+然后你只需要关注你的产品本身就好了,高并发程序的开发效率大大的提高了.
+一个新时代的带来了生产效率很大的提升的新的生产工具 Lets Go !
+
+go与rust: 
 go的runtime里自带了协程调度器和gc,所以性能上要比rust多些消耗,
 但是好处是性能和开发效率取得了更好的平衡，大牛写好了轮子给你用。
 ```
+
 [go高级进阶](https://chai2010.cn/advanced-go-programming-book/ch1-basic/ch1-08-ext.html)     
 [go教程英文原版](https://golangbot.com/learn-golang-series/)     
 [go教程中文版](http://blog.csdn.net/u011304970/article/details/76168257)     
@@ -15,32 +22,44 @@ go的runtime里自带了协程调度器和gc,所以性能上要比rust多些消�
 [go socket实现聊天](https://victoriest.gitbooks.io/golang-tcp-server/content/chapter2.html)     
 [国外牛人的go技术博客](https://www.goinggo.net/2014/01/concurrency-goroutines-and-gomaxprocs.html)     
 [深入go](https://tiancaiamao.gitbooks.io/go-internals/content/zh/01.1.html)     
-
 [go标准库的使用](https://books.studygolang.com/The-Golang-Standard-Library-by-Example/chapter01/01.1.html)     
 
+#### Some Notes
+```
+// golang的for循环不需要加括号
+for i:=0; i<100; i++ {
+    log.Println(i)
+}
+// go没有while, for就是while
+for {
+    i++
+}
+```
 
-
-#### installion
+#### 安装
 	https://golang.org/dl/	
-    note that must set $GOROOT/$GOPATH
+    set env $GOROOT/$GOPATH/$GOPROXY
 
-#### golang features:
-     Concurrency is an inherent part of the language. As a result writing multithreaded programs is a piece of cake. This is achieved by Goroutines and channels which we will discuss later in the upcoming tutorials.
+#### 特点
+     Concurrency is an inherent part of the language. 
+     As a result writing multithreaded programs is a piece of cake. 
+     This is achieved by Goroutines and channels which we will discuss later in the upcoming tutorials.
      Golang is a compiled language. The source code is compiled to native binary.
-     The language spec is pretty simple.
-     The go compiler supports static linking. All the go code can be statically linked into one big fat binary and it can be deployed in cloud servers easily without worrying about dependencies.
+     The language spec is pretty simple.The go compiler supports static linking. 
+     All the go code can be statically linked into one big fat binary and 
+     it can be deployed in cloud servers easily without worrying about dependencies.
 
 #### Hello World 
 ```
-//your project code structure is like this:
+// project structure:
     GoProject/
-             pkg/
-	            hello.a
-             bin/  
-	            hello
-             src/
-                hello/
-                     helloworld.go
+        pkg/
+	        hello.a
+        bin/  
+	        hello
+        src/
+            hello/
+                helloworld.go
 
 // helloworld.go
 package main
@@ -50,15 +69,15 @@ import "fmt"
 func main() {  
     fmt.Println("Hello World")
 }
+// go run/build helloworld.go
 
-// use `go run/build helloworld.go` to run it.
-
-//放置go项目路径的2种做法：
+// 放置go项目路径的2种做法
 // 1.把GoProject项目根目录加入GOPATH,要求该目录结构里必须有src/hello/,这样的目录结构才能被go命令认识,然后hello包也就能被搜索到.
 // 2.吧hello直接放在GOPATH的src下面,这样hello包也自然能被go命令搜索到了.
+// 现在推荐使用go mod管理项目
 ```
 
-#### Variable
+#### 变量声明
 ```go
 `var name type` is the syntax to declare a single variable.    
 `var name type = initialvalue` is the syntax to declare a variable with     
@@ -69,25 +88,27 @@ func main() {
  var age int = 100
 ```
 
-#### Type inference
+#### 类型推断
 If the variable is declared using the syntax var name = initialvalue, Go will automatically infer the type of that variable from the initial value.
 ```go
  var age = 100 // type will be inferred
 ```
 
-#### Short hand declaration 
-Go also provides another concise way for declaring variables. This is known as short hand declaration and it uses := operator.
+#### 变量声明 - 偷懒写法
+Go also provides another concise way for declaring variables. 
+This is known as short hand declaration and it uses := operator.
 name := initialvalue is the short hand syntax to declare a variable.
-Short hand syntax can only be used when at least one of the variables in the left side of := is newly declared !
+Short hand syntax can only be used when 
+at least one of the variables in the left side of := is newly declared !
 ```go
 name, age := "naveen", 24  // short hand declaration
 age, height := 24, 170  // ok
 name, height := "naveen", 170  // Error! no new variables
 ```
 
-#### Types
+#### 数据类型
      bool
-     Numeric Types
+     Numeric Types:
           int8, int16, int32, int64,  int
           uint8, uint16, uint32, uint64,  uint
           float32, float64
@@ -106,7 +127,7 @@ d := a || b
 // Integer
 // Signed integers
 int8: represents 8 bit signed integers 
-size: 8 bits 
+size: 8 bits (占8个位)
 range: -128 to 127
 
 int16: represents 16 bit signed integers 
@@ -156,7 +177,7 @@ float64: 64 bit floating point numbers(float64 is the default type for floating 
 
 a, b := 5.67, 8.97
 
-// Other numeric types
+// byte and rune
 byte is an alias of uint8 
 rune is an alias of int32
 
@@ -188,7 +209,7 @@ const trueConst = true
 //(Note that const has no type, its type is untyped ?!)
 ```
 
-#### Functions
+#### 函数
 The general syntax for declaring a function in go is
 ```go
 func fname(parametername type) returntype {  
@@ -206,7 +227,7 @@ func fname() {
 }
 ```
 
-#### Multiple return values
+#### 多返回值
 ```go
 func rectProps(length, width float64)(float64, float64) {  
     var area = length * width
@@ -217,7 +238,7 @@ func rectProps(length, width float64)(float64, float64) {
 area, perimeter := rectProps(10.8, 5.6)
 ```
 
-#### Named return values
+#### 返回值命名
 It is possible to return named values from a function. If a return value is named, it can be considered as being declared as a variable in the first line of the function.
 ```go
 func rectProps(length, width float64)(area, perimeter float64) {  
@@ -228,7 +249,7 @@ func rectProps(length, width float64)(area, perimeter float64) {
 Since area and perimeter are specified in the function declaration as return values, they are automatically returned from the function when a return statement in encountered.
 ```
 
-#### Blank Identifier
+#### 空下划线
 _ is know as the blank identifier in Go. It can be used in place of any value of any type. use _ to ignore a value.
 ```go
 func rectProps(length, width float64) (float64, float64) {  
@@ -243,7 +264,7 @@ func main() {
 }
 ```
 
-#### Packages
+#### 包/模块
 Every executable go application must contain a main function. This function is the entry point for execution. The main function should reside in the main package.
 Source files belonging to a package should be placed in separate folders of their own. It is a convention in Go to name this folder with the same name of the package.
 
@@ -266,7 +287,7 @@ import (
  )
 ```
 
-#### init function of a package
+#### init函数
 ```go
 Every package can contain a init function. (sort of like Python package __init__.py file)
 The init function should not have any return type and should not have any parameters. 
@@ -300,7 +321,7 @@ import (
 
 ```
 
-#### if else statement
+#### if else
 ```go
 num := 99
 if num <= 50 {
@@ -315,7 +336,7 @@ if num <= 50 {
 
 ```
 
-#### Loops
+#### for loop - go只有for关键字
 for is the only loop available in Go. Go doesn't have while or do while loops which are present in other languages like C. Go use for but it includes while...
 ```go
 // for loop:
@@ -338,7 +359,7 @@ for {
 
 ```
 
-#### switch 
+#### switch case
 ```go
 func main() {  
     finger := 4
@@ -382,7 +403,7 @@ func main() {
 
 ```
 
-#### Arrays and Slices
+#### Arrays and Slices - 数组和切片
 ```go
 var a [3]int  //int array with length 3 , a = [0, 0, 0]
 a[0] = 12     // array index starts at 0
@@ -396,7 +417,7 @@ a := [3]int{12}         // a = [12, 0, 0]
 a := [...]int{12, 78, 50} // ... makes the compiler determine the length
 ```
 
-#### Arrays are value types in Go !!! Different from List in Python.
+#### Arrays是值类型 Slice是引用类型
 ```go
 Arrays in Go are value types and not reference types !!!
 This means that when they are assigned to a new variable, a copy of the original array is assigned to the new variable. 
@@ -426,7 +447,7 @@ func main() {
 }
 ```
 
-#### Iterate arrays using range
+#### Iterate arrays use range
 ```go
 a := [...]float64{67.7, 89.8, 21, 78}
     for i := 0; i < len(a); i++ {  //looping from 0 to the length of the array
@@ -447,7 +468,7 @@ for _, v := range a {  //or ignores index
 }
 
 ```
-#### multidimensional arrays
+#### 多维数组
 ```go
 func printarray(a [3][2]string) {  
 		for _, v1 := range a {
@@ -477,7 +498,7 @@ a := [3][2]string{
 }
 ```
 
-#### Slices
+#### Slice切片 - 类似python的List - 即动态数组可自动扩容
 slice is a convenient, flexible and powerful wrapper on top of an array. Slices do not own any data on their own. They are the just references to existing arrays.
 A slice with elements of type T is represented by []T.
 ```go
@@ -517,14 +538,14 @@ func main() {
     fmt.Println("After re-slicing length is",len(fruitslice), "and capacity is",cap(fruitslice)) //After re-slicing length is 6 and capacity is 6  
 }
 ```
-#### creating a slice using make
+#### creating a slice using make()
 ```go
 func make([]T, len, cap) []T can be used to create a slice by passing the type, length and capacity. 
 The capacity parameter is optional and defaults to the length. The make function creates an array and returns a slice reference to it.
 
 i := make([]int, 5, 5)  //i = [0 0 0 0 0]
 ```
-#### Appending to a slice
+#### append a slice using append()
 ```go
 As we already know arrays are restricted to fixed length and their length cannot be increased. 
 Slices are dynamic and new elements can be appended to the slice using append function !! (like Python List ??)
@@ -563,8 +584,7 @@ func main() {
 ```
 
 
-#### Arrays are value types in Go !!! Different from List in Python.  (array是值类型)
-#### Slice are reference types in Go !!! just like List in Python.    (slice是引用类型)
+#### array是值类型 slice是引用类型
 ```go
 Slices can be thought of as being represented internally by a structure type. This is how it looks,
 
@@ -592,7 +612,7 @@ func main() {
 }
 
 ```
-#### Multidimensional slices
+#### 多维slice
 ```go
 Similar to arrays, slices can have multiple dimensions.
 
@@ -636,7 +656,7 @@ func main() {
 }
 ```
 
-#### Variadic Functions(A variadic function is a function that can accept variable number of arguments)
+#### variadic function - 函数的最后一个参数可以是变长参数
 Please note that only the last parameter of a function is allowed to be variadic.
 ```go
 func find(num int, nums ...int) {    //Within the function find, the type of nums is equivalent to []int i.e, an integer slice.
@@ -787,14 +807,14 @@ if map1 == nil   // OK
 One way to check whether two maps are equal is to compare each one's individual elements one by one... 
 ```
 
-#### Maps are reference types 
+#### map是引用类型
 ```
 Similar to slices, maps are reference types. When a map is assigned to a new variable, they both point to the same internal data structure.
 Hence changes made in one will reflect in the other.
 Similar is the case when maps are passed as parameters to functions. When any change is made to the map inside the function, it will be visible to the caller.
 ```
 
-#### Strings
+#### string
 ```go
 //A string in Go is a slice of bytes. (like python String)
 //Since a string is a slice of bytes, its possible to access each byte of a string.
@@ -805,8 +825,11 @@ func main() {
     lett := name[-1]
 }
 
-// (string & byte & rune difference in go??)
-
+// string & byte & rune difference in go ?
+byte=int8
+rune=int32
+b := []byte("test") 
+// string本质上就是[]byte,可互相转换,但是转换有个编码问题
 
 //iterate over the individual runes of a string. 
 s := "Señor"
@@ -828,7 +851,7 @@ func main() {
 }
 ```
 
-#### Strings are immutable (just like python String)
+#### string是不可变的 - python string也一样 - 不可变
 ```go
 //Strings are immutable in Go. Once a string is created its not possible to change it.
 //you just change the variable which point to different string object.
@@ -846,7 +869,7 @@ runes[0] = 'a'      // OK, because runes is a slice not a string
 s = string(runes)   // s point to a new string now
 ```
 
-#### Pointer in go
+#### 指针
 *A pointer is a variable which stores the memory address of another variable.*
 *the reference type is using Pointer in essence*
 ```go
@@ -892,7 +915,7 @@ func main() {
 }
 ```
 
-#### Do not pass a pointer to an array as a argument to a function. Use slice instead !!
+#### Do not pass a pointer of array as argument to a function. Use slice instead.
 ```go
 //Not Recommended: use "pointer" to an array as argument to function and make modification inside and outside:
 //  Although this way of passing a pointer to an array as a argument to a function and making modification to it works, 
@@ -925,11 +948,12 @@ p++     // Error: go pointer can't do arithmetic
 ```
 
 ----------------------------------------
-  # OOP in Go, by Structure, no Class.
+   # OOP in Go: use Struct, no Class.
 ----------------------------------------
 
-#### Structure (A structure is a user defined type which represents a collection of fields)
-*in go, we use structure to realize Class & OOP staff*
+#### Struct 结构体 - 相当于class - 即用户自定义类型
+*a struct is a user defined type which represents a collection of fields*
+*in go, we use struct to realize Class & OOP*
 ```go
 //Declaring and use a named structure:
 type Employee struct {  
@@ -937,8 +961,8 @@ type Employee struct {
     lastName  string
     age       int
 }
-e1 := Employee{firstName: "Sam", lastName: "Anderson", age: 25,}
-e2 := Employee{"Thomas", "Paul", 29, 800}                          //args in order
+e1 := Employee{firstName: "Sam", lastName: "Anderson", age: 25}
+e2 := Employee{"Thomas", "Paul", 29, 800}  //args in order
 
 //Creating anonymous structures, no struct name:
 e3 := struct {
@@ -960,7 +984,7 @@ type Employee struct {
 var e4 Employee  // e4 = {  0 0}  
 ```
 
-#### Accessing individual fields of a struct
+#### get struct field
 *The . operator is used to access the individual fields of a structure, just like Class*
 ```go
 type Employee struct {  
@@ -976,7 +1000,7 @@ e7.lastName = "Adams"
 fmt.Println("Employee 7:", e7)
 ```
 
-#### Pointers to a struct
+#### Pointer of a struct
 ```go
 e8 := &Employee{"Sam", "Anderson", 55, 6000}
 fmt.Println("First Name:", (*e8).firstName)
@@ -989,7 +1013,7 @@ equals to:
     e8.firstName
 ```
 
-#### Nested structs
+#### Nested struct
 It is possible that a struct contains a field which in turn is a struct. 
 ```go
 type Address struct {  
@@ -1185,7 +1209,7 @@ func main() {
 }
 ```
 
-#### Value receivers in methods .VS. value arguments in functions
+#### Value receivers in methods VS value arguments in functions
 ```go
 type rectangle struct {  
     length int
@@ -1211,7 +1235,7 @@ func main() {
 }
 ```
 
-#### Pointer receivers in methods .VS. pointer arguments in functions.
+#### Pointer receivers in methods VS pointer arguments in functions.
 ```go
 type rectangle struct {  
     length int
@@ -1268,10 +1292,11 @@ func main() {
 
 ```
 
-#### Interface (In Go, an interface is a set of method signatures)
-    in the OOP world, "interface defines the behaviour of an object". 
-    It only specifies what the object is supposed to do. 
-    The way of achieving this behaviour (implementation detail) is upto the object.
+#### Interface 接口 - 接口里定义好了函数签名 - 类型负责去实现具体函数
+    an interface is a set of method signatures      
+    in the OOP world, "interface defines the behaviour of an object".      
+    It only specifies what the object is supposed to do.     
+    The way of achieving this behaviour (implementation detail) is upto the object.     
     
     When a type provides definition for all the methods in the interface, it is said to implement the interface. 
     Interface specifies what methods a type should have and the type decides how to implement these methods.
@@ -1303,7 +1328,7 @@ func main() {
 }
 ```
 
-#### Usage of Interface
+#### Interface使用
 ```go
 type SalaryCalculator interface {  
     CalculateSalary() int
@@ -1344,7 +1369,7 @@ func main() {
 }
 ```
 
-#### Usage of Empty Interface
+#### Empty Interface的使用 - 相当于Object类
 An interface which has zero methods is called empty interface. It is represented as interface{}. 
 Since the empty interface has zero methods, all types implement the empty interface.
 ```go
@@ -1365,7 +1390,7 @@ func main() {
 }
 ```
 
-#### Type Assertion
+#### 类型断言
 Type assertion is used extract the underlying value of the interface.
 i.(T) is the syntax which is used to get the underlying value of interface i whose concrete type is T.
 ```go
@@ -1513,7 +1538,8 @@ func main() {
 // ------------------------------------------------------------------------------------------------
 ```
 
-#### implementing multiple interfaces(A type can implement more than one interface)
+#### 实现多个接口 - A struct can implement more than one interface
+*一个struct只要实现了一个接口的所有函数即实现了这个接口*
 ```go
 type SalaryCalculator interface {  
     DisplaySalary()
@@ -1605,8 +1631,8 @@ A nil interface has both its underlying value and as well as concrete type as ni
       Concurrency in Go, use goroutine & channel,     
       just like coroutine & queue in Python but more simple/powerful.
 -----------------------------------------------------------------------
-## Concurrency(concurrency != parallel)
-#### Goroutine introduce
+## Concurrency并发 - concurrency并发 != parallel并行
+#### Goroutine协程介绍
     Goroutines are functions or methods that run concurrently with other functions or methods.
     Goroutines can be thought of as light weight threads. 
 
@@ -1665,7 +1691,7 @@ func main() {
 ***one awesome graph explantion of goroutine***
 ![goroutine](https://golangbot.com/content/images/2017/07/Goroutines-explained.png "*one awesome graph explantion of goroutine*")
 
-#### Channel
+#### Channel通道
     Channels can be thought as pipes using which Goroutines communicate. 
     Similar to how water flows from one end to another in a pipe, 
     data can be sent from one end and received from the another end using channels.
@@ -1682,7 +1708,7 @@ data := <- a    // read from channel a
 a <- data       // write to channel a  
 ```
 
-#### Send and Receive are blocking of unbuffered channel(queue_length=0) by default
+#### unbuffered channel(queue_length=0) 无缓冲通道
     When a data is sent to a channel, the control is blocked in the send statement until some other Goroutine reads from that channel.
     Similarly when data is read from a channel, the read is blocked until some Goroutine writes data to that channel.
     This property of channels is what helps Goroutines communicate effectively without the use of explicit locks or conditional variables that are quite common in other programming languages.
@@ -1785,12 +1811,12 @@ func producer(chnl chan int) {
     for i := 0; i < 10; i++ {
         chnl <- i
     }
-    close(chnl)
+    close(chnl)  //关闭chan
 }
 func main() {  
     ch := make(chan int)
     go producer(ch)
-    for v := range ch {            // best way to read from channel until closed.
+    for v := range ch {  // best way to read from channel until it closed
         fmt.Println("Received ",v)
     }
 }
@@ -1834,7 +1860,8 @@ func main() {
 }
 ```
 
-#### Buffered Channel(queue_length > 0), and use buffered channel to realize a Worker Pool
+#### Buffered Channel(queue_length > 0) 有缓冲通道
+#### use buffered channel to realize a Worker Pool
     *send/receive to an unbuffered channel are blocking.*
     *send/receive to an buffered channel are only blocking when channel is full/empty.*
 
@@ -1900,7 +1927,7 @@ func main() {
 }
 ```
 
-#### WaitGroup
+#### WaitGroup 等待多个goroutine结束
     A WaitGroup is used to wait for a collection of Goroutines to finish executing. 
     The control is blocked until all Goroutines finish executing. 
     Lets say we have 3 concurrently executing Goroutines spawned from the main Goroutine. 
@@ -1931,7 +1958,7 @@ func main() {
 ```
 
 ### Worker Pool Implementation, by goroutine & buffered channel
-**One of the important uses of buffered channel is the implementation of worker pool.**
+**use buffered channel to implement a worker pool.**
     In general, a worker pool is a collection of threads which are waiting for tasks to be assigned to them.    
     Once they finish the task assigned, they make themselves available again for the next task.     
     more goroutines in worker pool, less time taken to finish jobs.
@@ -2008,12 +2035,12 @@ func main() {
     fmt.Println("total time taken ", diff.Seconds(), "seconds")
 }
 ```
-#### select
+#### select + channel
     The select statement is used to choose from multiple send/receive channel operations. 
     The select statement blocks until one of the send/receive operation is ready. 
     If multiple operations are ready, one of them is chosen at random. 
 ```go
-func server1(ch chan string) {  
+func server1(ch chan string) {
     time.Sleep(6 * time.Second)
     ch <- "from server1"
 }
@@ -2061,7 +2088,7 @@ func main() {
 *learn how to solve race conditions using mutexes and channels.*
 *please think about race conditions in multi threads/processes*
 
-##### Critical section(临界区的概念 ?)
+##### Critical section(临界区的概念)
     Before jumping to mutex, it is important to understand the concept of critical section in concurrent programming. 
     when a program runs concurrently, the parts of code which modify shared resources should not be accessed by multiple Goroutines at the same time.
     This section of code which modifies shared resources is called critical section. 
@@ -2166,7 +2193,8 @@ func main() {
 
 
 -----------------------------------------------------------------------
-      Object Oriented Programming in Go, write code in OOP more
+      Object Oriented Programming in Go, write code in OOP way
+      一句话,就是尽量多使用struct和interface,写OOP代码.
 -----------------------------------------------------------------------
 
 #### Structs Instead of Classes
@@ -2357,9 +2385,9 @@ func main() {
 }
 ```
 
-
 -----------------------------------------------------------------------
-    Go has no try-except-finally, but defer/panic/recover, SHIT...
+    Go has no try-except-finally, but defer/panic/recover, fuck...
+    异常捕捉这套写法挺无语的.
 -----------------------------------------------------------------------
 #### Defer and Error Handling
 **Defer statement is used to execute a function call just before the function where the defer statement is present returns.**
@@ -2698,9 +2726,6 @@ func r() {
     }
 }
 ```
-
-
-
 
 
 ------------------------------------------------------------------------

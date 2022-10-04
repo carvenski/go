@@ -25,3 +25,13 @@ go mod支持包的不同版本的写法: /vN后缀
 "github.com/labstack/echo/v4"  加了v4后缀的这个路径才能支持v4.0.0以上的版本 
 这算个go mod的坑吧...
 ```
+
+## 关于vendor目录的使用
+```
+使用go mod后仍然可以使用vendor目录存放本项目的三方依赖包      
+但是在run和build时要加上-mod=vendor参数
+go mod vendor 拷贝依赖到当前vendor目录下
+go run/build -mod=vendor main.go (注意这里-mod=vendor要写在前面否则不生效)
+```
+
+

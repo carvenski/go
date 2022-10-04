@@ -199,7 +199,8 @@ err=Post http://10.10.25.28:8086/write?consistency=&db=benchmark&precision=s&rp=
 进程打开的文件描述符太多,超过了系统限制,需要ulimt -n 10000来调大fd限制数. 但是这是client还是server报的错误?
 最终发现: 
 client端的ulimt已经调到了10000,还是报错,
-再把influxdb server端的max-connection-limit参数设置为10000才行.shit...这是influxdb允许的最大连接数.
+再把influxdb server端的max-connection-limit参数设置为10000才行,这个值是influxdb server端允许的最大连接数.
+因为每个socket连接是需要client-server两端的.
 
 2.
 benchmark_influxdb.go:102: node 33378 write fail. 
