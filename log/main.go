@@ -1,16 +1,14 @@
 package main
 
 import (
-	log "./log"
+	log "mylog/log"
 )
 
-// test log.Logger
+// use log.Logger
 func main() {
-	logger := log.Logger
-	logger.Info("test info")
-	logger.Debug("test debug")
-	logger.Error("test error")
+	log.Logger.Info("test info")
+	log.Logger.Debug("test debug")
+	log.Logger.Error("test error")
 }
-
 
 
